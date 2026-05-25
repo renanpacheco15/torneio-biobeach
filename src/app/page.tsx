@@ -1,12 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, ChevronRight, Trophy } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { CourtSponsorBackdrop } from "@/components/Sponsors";
 import { OfficialHeader, PremiumFooter } from "@/components/OfficialChrome";
 import { getCourtStatusLabel } from "@/lib/courts";
 import { getCourtSponsor } from "@/lib/sponsors";
-import { calculateOverallRanking, getTournamentProgress } from "@/lib/tournament/calculations";
 import { GROUPS } from "@/lib/tournament/data";
 import { useTournamentStore } from "@/lib/tournament/store";
 import type { CourtStatus, Group } from "@/lib/tournament/types";
@@ -14,8 +13,6 @@ import { cn } from "@/lib/utils";
 
 export default function Home() {
   const { state } = useTournamentStore();
-  const ranking = calculateOverallRanking(state);
-  const progress = getTournamentProgress(state);
 
   return (
     <main id="inicio" className="min-h-screen overflow-hidden bg-[#020403] text-white">
@@ -42,66 +39,6 @@ export default function Home() {
             const status = state.settings.courtStatuses[`court-${group.number}`] ?? "active";
             return <CourtAccessCard key={group.id} group={group} status={status} />;
           })}
-        </section>
-
-        <section id="ranking-geral" className="mx-auto w-full max-w-5xl rounded-xl border border-lime-300/20 bg-white/[0.055] p-5 shadow-[0_0_54px_rgba(132,204,22,0.10)] backdrop-blur sm:p-6">
-          <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-md bg-lime-300/10 px-3 py-2 text-xs font-black uppercase text-lime-200 ring-1 ring-lime-300/20">
-                <Trophy className="h-4 w-4" aria-hidden="true" />
-                Ranking Geral
-              </div>
-              <h2 className="mt-4 text-3xl font-black uppercase leading-tight tracking-normal text-white sm:text-4xl">
-                Classificação oficial
-              </h2>
-              <p className="mt-3 max-w-2xl text-sm font-bold leading-6 text-slate-300 sm:text-base">
-                Top 5 do torneio por vitórias, saldo, pontos feitos e pontos sofridos.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2 text-center">
-              <RankingMetric label="Jogos" value={`${progress.finished}/${progress.total}`} />
-              <RankingMetric label="Progresso" value={`${progress.percent}%`} />
-              <RankingMetric label="Duplas" value={ranking.length.toString()} />
-            </div>
-          </div>
-
-          <div className="mt-5 grid gap-3">
-            {ranking.slice(0, 5).map((row) => (
-              <div
-                key={row.pair.id}
-                className="grid min-h-16 grid-cols-[auto_1fr] items-center gap-3 rounded-lg border border-white/10 bg-slate-950/90 px-3 py-3 sm:px-4"
-              >
-                <div className="flex h-11 w-11 items-center justify-center rounded-md bg-lime-300 text-lg font-black text-slate-950">
-                  {row.overallPosition}
-                </div>
-                <div className="min-w-0">
-                  <div className="break-words text-base font-black uppercase leading-snug text-white">{row.pair.name}</div>
-                  <div className="mt-1 text-xs font-black uppercase text-slate-400">
-                    Grupo {row.group.number} · {row.group.shortName}
-                  </div>
-                </div>
-                <div className="col-span-2 grid grid-cols-3 gap-2 sm:grid-cols-6">
-                  <MiniStat label="J" value={row.played.toString()} />
-                  <MiniStat label="V" value={row.wins.toString()} />
-                  <MiniStat label="PF" value={row.pointsFor.toString()} />
-                  <MiniStat label="PC" value={row.pointsAgainst.toString()} />
-                  <MiniStat label="Saldo" value={`${row.balance > 0 ? "+" : ""}${row.balance}`} highlight />
-                  <MiniStat label="Aprov." value={`${Math.round(row.winRate * 100)}%`} />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-5 flex justify-center">
-            <Link
-              href="/geral"
-              className="inline-flex h-14 w-full items-center justify-center gap-3 rounded-md border border-lime-300/40 bg-lime-300 px-6 text-sm font-black uppercase text-slate-950 shadow-[0_0_32px_rgba(132,204,22,0.24)] transition hover:-translate-y-0.5 sm:w-auto sm:min-w-64"
-            >
-              Ver ranking completo
-              <ArrowRight className="h-5 w-5" aria-hidden="true" />
-            </Link>
-          </div>
         </section>
       </div>
       <PremiumFooter />
@@ -162,23 +99,5 @@ function CourtAccessCard({ group, status }: { group: Group; status: CourtStatus 
     <Link href={`/atleta?grupo=${group.number}`} className={cardClassName} aria-label={`Abrir grupo da Quadra ${courtNumber}, ${group.shortName}`}>
       {content}
     </Link>
-  );
-}
-
-function RankingMetric({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-md border border-white/10 bg-slate-950/90 px-3 py-3 sm:px-4">
-      <div className="text-2xl font-black text-white sm:text-3xl">{value}</div>
-      <div className="text-[10px] font-black uppercase text-lime-300">{label}</div>
-    </div>
-  );
-}
-
-function MiniStat({ label, value, highlight = false }: { label: string; value: string; highlight?: boolean }) {
-  return (
-    <div className={cn("rounded-md border px-2 py-2 text-center", highlight ? "border-lime-300/30 bg-lime-300/10" : "border-white/10 bg-white/[0.04]")}>
-      <div className={cn("text-sm font-black", highlight ? "text-lime-300" : "text-white")}>{value}</div>
-      <div className="mt-0.5 text-[9px] font-black uppercase text-slate-500">{label}</div>
-    </div>
   );
 }

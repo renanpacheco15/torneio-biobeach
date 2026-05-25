@@ -18,7 +18,7 @@ export default function LiveStreamsPage() {
 
       <div className="relative z-10 mx-auto flex max-w-[1440px] flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
         <section className="rounded-xl border border-white/10 bg-white/[0.055] p-5 text-center shadow-[0_0_54px_rgba(239,68,68,0.08)] backdrop-blur sm:p-8">
-          <div className="mx-auto inline-flex items-center gap-2 rounded-md border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs font-black uppercase text-red-600">
+          <div className="mx-auto inline-flex items-center gap-2 rounded-md border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs font-black uppercase text-red-100">
             <span className="h-2.5 w-2.5 rounded-full bg-red-500 shadow-[0_0_16px_rgba(239,68,68,0.9)]" aria-hidden="true" />
             Transmissão ao vivo
           </div>
@@ -30,7 +30,7 @@ export default function LiveStreamsPage() {
           </p>
         </section>
 
-        <section aria-label="Transmissões por quadra" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <section aria-label="Transmissões por quadra" className="grid gap-3">
           {COURTS.map((court) => {
             const status = state.settings.courtStatuses[court.id] ?? (court.reserve ? "disabled" : "active");
             const streamUrl = state.settings.liveStreams[court.id]?.trim() ?? "";
@@ -42,40 +42,49 @@ export default function LiveStreamsPage() {
               <article
                 key={court.id}
                 className={cn(
-                  `relative min-h-56 overflow-hidden rounded-xl border border-white/15 bg-gradient-to-br ${court.color} p-4 text-white shadow-[0_0_34px_rgba(15,23,42,0.12)]`,
-                  !isActive && "opacity-65 grayscale",
+                  "relative overflow-hidden rounded-xl border border-white/15 bg-slate-950/90 p-3 text-white shadow-[0_0_34px_rgba(15,23,42,0.16)]",
+                  !isActive && "opacity-60 grayscale",
                 )}
               >
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.28),transparent_30%),linear-gradient(180deg,rgba(0,0,0,0.08),rgba(0,0,0,0.68))]" />
+                <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${court.color} opacity-35`} />
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_0%,rgba(255,255,255,0.20),transparent_28%),linear-gradient(90deg,rgba(2,6,23,0.12),rgba(2,6,23,0.86))]" />
 
-                <div className="relative z-10 flex min-h-48 flex-col justify-between">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="rounded-md bg-black/35 px-3 py-2 text-xs font-black uppercase ring-1 ring-white/15">
-                        {court.label}
-                      </div>
-                      <div className="mt-3 text-2xl font-black uppercase leading-tight">{court.sponsor}</div>
+                <div className="relative z-10 grid gap-3 md:grid-cols-[96px_minmax(0,1fr)_170px_220px] md:items-center">
+                  <div className="flex items-center gap-3 md:block">
+                    <div className="flex h-16 w-20 shrink-0 flex-col items-center justify-center rounded-lg border border-white/15 bg-black/45 shadow-[0_0_18px_rgba(255,255,255,0.06)] md:h-20 md:w-20">
+                      <span className="text-[10px] font-black uppercase text-white/70">Quadra</span>
+                      <span className="text-3xl font-black leading-none text-white">{String(court.number).padStart(2, "0")}</span>
                     </div>
-
-                    <span
-                      className={cn(
-                        "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[10px] font-black uppercase",
-                        isActive ? "bg-red-500 text-white shadow-[0_0_18px_rgba(239,68,68,0.35)]" : "bg-white/15 text-white",
-                      )}
-                    >
-                      {isActive && <span className="h-1.5 w-1.5 rounded-full bg-white" aria-hidden="true" />}
-                      {isActive ? "Ao vivo" : getCourtStatusLabel(status)}
-                    </span>
+                    <div className="md:hidden">
+                      <div className="text-xl font-black uppercase leading-tight">{court.sponsor}</div>
+                      <div className="mt-1 text-xs font-black uppercase text-white/65">{court.label}</div>
+                    </div>
                   </div>
 
-                  {court.logo && (
-                    <div className="relative my-3 h-20 w-20 overflow-hidden rounded-xl border border-white/20 bg-white/95 p-2 shadow-[0_0_24px_rgba(255,255,255,0.18)]">
-                      <Image src={court.logo} alt={court.label} fill sizes="80px" className="object-contain p-1" />
+                  <div className="hidden min-w-0 items-center gap-4 md:flex">
+                    {court.logo && (
+                      <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-white/15 bg-white p-1.5 shadow-[0_0_18px_rgba(255,255,255,0.12)]">
+                        <Image src={court.logo} alt={court.label} fill sizes="48px" className="object-contain p-1" />
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <div className="break-words text-2xl font-black uppercase leading-tight">{court.sponsor}</div>
+                      <div className="mt-1 text-xs font-black uppercase text-white/65">{court.label}</div>
                     </div>
-                  )}
+                  </div>
 
-                  <div>
-                    <div className="mb-3 flex items-center gap-2 text-xs font-black uppercase text-white/75">
+                  <span
+                    className={cn(
+                      "inline-flex h-12 w-full items-center justify-center gap-2 rounded-md px-3 text-xs font-black uppercase ring-1",
+                      isActive ? "bg-red-500 text-white ring-red-300/50 shadow-[0_0_18px_rgba(239,68,68,0.30)]" : "bg-white/[0.12] text-white ring-white/15",
+                    )}
+                  >
+                    {isActive && <span className="h-2 w-2 rounded-full bg-white" aria-hidden="true" />}
+                    {isActive ? "Ao vivo" : getCourtStatusLabel(status)}
+                  </span>
+
+                  <div className="grid gap-2">
+                    <div className="hidden items-center gap-2 text-[10px] font-black uppercase text-white/65 md:flex">
                       <Video className="h-4 w-4" aria-hidden="true" />
                       Transmissão da quadra
                     </div>

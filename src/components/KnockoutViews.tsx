@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ArrowRight, Clock3, Crown, MapPin, Radio, Shield, Sparkles, Trophy } from "lucide-react";
+import { ArrowRight, Crown, MapPin, Radio, Shield, Sparkles, Trophy } from "lucide-react";
 import { CourtSponsorBackdrop } from "@/components/Sponsors";
 import { OfficialHeader, PremiumFooter } from "@/components/OfficialChrome";
 import { getBracketView, type BracketViewMatch } from "@/lib/tournament/calculations";
@@ -219,9 +219,8 @@ function KnockoutMatchCard({ state, match, featured = false }: { state: Tourname
 
         <VersusBlock match={match} />
 
-        <div className="grid gap-2 text-sm font-bold text-white/80 sm:grid-cols-3">
+        <div className="grid gap-2 text-sm font-bold text-white/80 sm:grid-cols-2">
           <MetaPill icon={<MapPin className="h-4 w-4" aria-hidden="true" />} label={courtGroup.court} value={sponsor.name} />
-          <MetaPill icon={<Clock3 className="h-4 w-4" aria-hidden="true" />} label="Horário" value={meta.time} />
           <MetaPill icon={<Trophy className="h-4 w-4" aria-hidden="true" />} label="Vencedor" value={winner?.name ?? "A definir"} />
         </div>
 

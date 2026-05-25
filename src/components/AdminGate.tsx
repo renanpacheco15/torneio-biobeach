@@ -139,7 +139,7 @@ function AdminLoginPanel({
         Entrar
       </button>
 
-      <div className="mt-3 text-xs font-bold text-slate-500">Senha inicial local: renan123</div>
+      <div className="mt-3 text-xs font-bold text-slate-500">Acesso restrito à operação do torneio.</div>
     </form>
   );
 }

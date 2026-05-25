@@ -18,7 +18,7 @@ export default function ScorekeeperPage() {
 
   if (!group) {
     return (
-      <main className="flex min-h-screen items-center justify-center px-4">
+    <main className="flex min-h-screen items-center justify-center bg-[#020403] px-4 text-white">
         <div className="max-w-md rounded-lg border border-slate-200 bg-white p-6 text-center shadow-sm">
           <Brand compact />
           <h1 className="mt-6 text-2xl font-black uppercase">Quadra não encontrada</h1>
@@ -37,12 +37,13 @@ export default function ScorekeeperPage() {
 
   return (
     <AdminGate allowedRoles={[`mesario-${group.number}` as AdminRole]} title={`Acesso do mesário ${group.number}`}>
-    <main className="min-h-screen px-4 py-4 sm:px-6 lg:px-8">
-      <div className="mx-auto flex max-w-7xl flex-col gap-4">
-        <header className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <main className="min-h-screen bg-[#020403] px-4 py-4 text-white sm:px-6 lg:px-8">
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(132,204,22,0.12),transparent_34%),radial-gradient(circle_at_88%_20%,rgba(245,197,66,0.10),transparent_28%)]" />
+      <div className="relative z-10 mx-auto flex max-w-7xl flex-col gap-4">
+        <header className="rounded-lg border border-white/10 bg-black/55 p-4 shadow-[0_0_34px_rgba(132,204,22,0.08)] backdrop-blur">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <Brand compact />
-            <Link href="/" className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-200 px-4 text-sm font-black uppercase text-slate-800">
+            <Brand dark compact />
+            <Link href="/" className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-white/10 bg-white/[0.04] px-4 text-sm font-black uppercase text-slate-200">
               <ChevronLeft className="h-4 w-4" aria-hidden="true" />
               Início
             </Link>
@@ -91,7 +92,7 @@ export default function ScorekeeperPage() {
           </div>
 
           <aside className="xl:sticky xl:top-4 xl:self-start">
-            <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="rounded-lg border border-white/10 bg-white/[0.055] p-4 shadow-[0_0_34px_rgba(132,204,22,0.08)]">
               <h2 className="mb-3 text-xl font-black uppercase tracking-normal">Ranking parcial</h2>
               <RankingTable ranking={ranking} compact />
             </div>

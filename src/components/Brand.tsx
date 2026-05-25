@@ -9,13 +9,9 @@ type BrandProps = {
 export function Brand({ compact = false, dark = false }: BrandProps) {
   if (dark) {
     return (
-      <div className={cn("flex flex-col justify-center", compact ? "h-14" : "h-16")}>
-        <div className={cn("font-black uppercase leading-none tracking-normal text-white", compact ? "text-3xl" : "text-4xl sm:text-5xl")}>
+      <div className={cn("flex flex-col justify-center", compact ? "h-11" : "h-12 sm:h-14")}>
+        <div className={cn("font-black uppercase leading-none tracking-normal text-white", compact ? "text-3xl" : "text-3xl min-[390px]:text-4xl sm:text-5xl")}>
           BIO<span className="text-lime-300">BEACH</span>
-        </div>
-        <div className="mt-1 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.34em] text-lime-200/80">
-          <span className="h-px w-8 bg-lime-300/70" />
-          Futevôlei
         </div>
       </div>
     );

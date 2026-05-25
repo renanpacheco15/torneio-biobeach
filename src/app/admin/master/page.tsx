@@ -305,12 +305,11 @@ function CourtManagement({
 }) {
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+      <div className="mb-4">
         <div>
           <h2 className="text-xl font-black uppercase tracking-normal">Status das Quadras</h2>
           <p className="mt-1 text-sm font-bold text-slate-500">Ative/desative quadras e cadastre os links de transmissão por quadra.</p>
         </div>
-        <div className="rounded-md bg-slate-950 px-3 py-2 text-xs font-black uppercase text-white">Quadra 9 Livre nasce desativada</div>
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3">

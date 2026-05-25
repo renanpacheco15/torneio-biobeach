@@ -26,10 +26,7 @@ export default function Home() {
 
       <div className="relative z-10 mx-auto flex max-w-[1440px] flex-col gap-10 px-4 pb-8 pt-6 sm:px-6 lg:px-8 lg:gap-12 lg:pb-10 lg:pt-10">
         <section className="mx-auto max-w-5xl text-center">
-          <div className="inline-flex items-center rounded-md border border-lime-300/25 bg-lime-300/10 px-3 py-2 text-xs font-black uppercase text-lime-200 shadow-[0_0_24px_rgba(132,204,22,0.12)]">
-            Arena 360 · Futevôlei
-          </div>
-          <h1 className="mt-5 text-5xl font-black uppercase leading-[0.9] tracking-normal text-white drop-shadow-[0_0_24px_rgba(255,255,255,0.14)] sm:text-6xl lg:text-7xl">
+          <h1 className="mt-2 text-5xl font-black uppercase leading-[0.9] tracking-normal text-white drop-shadow-[0_0_24px_rgba(255,255,255,0.14)] sm:text-6xl lg:text-7xl">
             Torneio BIOBEACH
           </h1>
           <h2 className="mx-auto mt-5 max-w-4xl text-2xl font-black uppercase leading-tight text-lime-200 sm:text-3xl lg:text-4xl">

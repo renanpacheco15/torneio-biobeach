@@ -174,7 +174,7 @@ function StageNav({ activePhase }: { activePhase?: KnockoutPhase }) {
             )}
           >
             <div className="text-xs font-black uppercase opacity-70">Fase</div>
-            <div className="mt-1 text-xl font-black uppercase">{config.shortTitle}</div>
+            <div className="mt-1 text-sm font-black uppercase leading-tight sm:text-base">{config.shortTitle}</div>
           </Link>
         );
       })}
@@ -206,7 +206,7 @@ function KnockoutMatchCard({ state, match, featured = false }: { state: Tourname
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <div className="text-xs font-black uppercase text-white/70">{meta.detail}</div>
-            <h2 className="mt-1 text-3xl font-black uppercase text-white">{meta.code}</h2>
+            <h2 className="mt-1 text-xl font-black uppercase leading-tight text-white sm:text-2xl">{meta.code}</h2>
           </div>
           <StatusBadge status={status} live={isLive} />
         </div>

@@ -10,6 +10,7 @@ import type {
   RankedPair,
   TournamentState,
 } from "./types";
+import { getKnockoutMeta } from "./knockout";
 
 export function getGroupById(state: TournamentState, groupId: GroupId): Group {
   return state.groups.find((group) => group.id === groupId) ?? GROUPS[0];
@@ -294,7 +295,7 @@ function resolveSeed(state: TournamentState, seed: KnockoutSeed): { label: strin
   const winner = origin?.winnerId ? state.pairs.find((pair) => pair.id === origin.winnerId) : undefined;
 
   return {
-    label: `Vencedor ${seed.matchId}`,
+    label: `Vencedor ${getKnockoutMeta(seed.matchId).code}`,
     pair: winner,
   };
 }

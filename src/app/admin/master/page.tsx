@@ -34,8 +34,29 @@ import {
 } from "@/lib/tournament/calculations";
 import { getKnockoutMeta, getKnockoutStatusLabel, KNOCKOUT_STAGES } from "@/lib/tournament/knockout";
 import { useTournamentStore } from "@/lib/tournament/store";
-import type { CourtStatus, GroupId, Pair, TournamentState } from "@/lib/tournament/types";
+import type { CourtStatus, GroupId, KnockoutPhase, Pair, TournamentState } from "@/lib/tournament/types";
 import { formatDateTime } from "@/lib/utils";
+
+type AdminPanel = "resumo" | "quadras" | "jogos" | "ranking" | "mata" | "grupos" | "log";
+type KnockoutFilter = "all" | KnockoutPhase;
+
+const adminPanels: Array<{ id: AdminPanel; label: string; description: string }> = [
+  { id: "resumo", label: "Resumo", description: "Visão rápida" },
+  { id: "quadras", label: "Quadras", description: "Status e lives" },
+  { id: "jogos", label: "Jogos", description: "Ao vivo e próximos" },
+  { id: "ranking", label: "Rank geral", description: "40 duplas" },
+  { id: "mata", label: "Mata-mata", description: "Tabela final" },
+  { id: "grupos", label: "Grupos", description: "Editar e corrigir" },
+  { id: "log", label: "Log", description: "Alterações" },
+];
+
+const knockoutFilters: Array<{ id: KnockoutFilter; label: string }> = [
+  { id: "all", label: "Tudo" },
+  { id: "round16", label: "Oitavas" },
+  { id: "quarterfinal", label: "Quartas" },
+  { id: "semifinal", label: "Semi" },
+  { id: "final", label: "Final" },
+];
 
 export default function MasterAdminPage() {
   return (
@@ -48,12 +69,17 @@ export default function MasterAdminPage() {
 function MasterAdminContent() {
   const { state, actions } = useTournamentStore();
   const [importError, setImportError] = useState<string | null>(null);
+  const [activePanel, setActivePanel] = useState<AdminPanel>("resumo");
+  const [activeKnockoutPhase, setActiveKnockoutPhase] = useState<KnockoutFilter>("round16");
+  const [activeGroupId, setActiveGroupId] = useState<GroupId | "all">("G1");
   const progress = getTournamentProgress(state);
   const qualified = getQualifiedPairs(state);
   const liveMatches = state.groupMatches.filter((match) => match.status === "live");
   const recentResults = getRecentResults(state, 5);
   const upcoming = getUpcomingMatches(state, 5);
   const bracket = getBracketView(state);
+  const visibleBracket = activeKnockoutPhase === "all" ? bracket : bracket.filter((match) => match.phase === activeKnockoutPhase);
+  const visibleGroups = activeGroupId === "all" ? state.groups : state.groups.filter((group) => group.id === activeGroupId);
   const overallRanking = calculateOverallRanking(state);
 
   const exportBackup = () => {
@@ -144,156 +170,270 @@ function MasterAdminContent() {
           <MetricCard label="Progresso" value={`${progress.percent}%`} />
         </section>
 
-        <CourtManagement state={state} actions={actions} />
+        <AdminPanelNav activePanel={activePanel} onChange={setActivePanel} />
 
-        <section className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-          <div className="rounded-xl border border-white/10 bg-white/[0.055] p-4 shadow-[0_0_34px_rgba(132,204,22,0.08)] backdrop-blur">
-            <div className="mb-3 flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-emerald-600" aria-hidden="true" />
-              <h2 className="text-xl font-black uppercase tracking-normal text-white">Classificados provisórios</h2>
+        {activePanel === "resumo" && (
+          <section className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+            <QualifiedPanel qualified={qualified} state={state} />
+            <div className="grid gap-4">
+              <CompactList title="Jogos em andamento" matches={liveMatches} state={state} empty="Nenhum jogo em andamento." />
+              <CompactList title="Últimos resultados" matches={recentResults} state={state} empty="Nenhum resultado finalizado." />
+              <CompactList title="Próximos jogos" matches={upcoming} state={state} empty="Todos os jogos foram finalizados." />
             </div>
-            <div className="grid gap-2 md:grid-cols-2">
-              {qualified.map((row) => {
-                const group = state.groups.find((item) => item.id === row.pair.groupId);
-                return (
-                  <div key={row.pair.id} className="rounded-md border border-emerald-300/25 bg-emerald-400/10 p-3">
-                    <div className="text-xs font-black uppercase text-emerald-300">
-                      Grupo {group?.number} · {row.position}º colocado
-                    </div>
-                    <div className="mt-1 font-black text-white">{row.pair.name}</div>
-                    <div className="mt-1 text-xs font-bold text-emerald-100">
-                      V {row.wins} · Saldo {row.balance > 0 ? "+" : ""}
-                      {row.balance} · PF {row.pointsFor}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          </section>
+        )}
 
-          <div className="grid gap-4">
+        {activePanel === "quadras" && <CourtManagement state={state} actions={actions} />}
+
+        {activePanel === "jogos" && (
+          <section className="grid gap-4 lg:grid-cols-3">
             <CompactList title="Jogos em andamento" matches={liveMatches} state={state} empty="Nenhum jogo em andamento." />
             <CompactList title="Últimos resultados" matches={recentResults} state={state} empty="Nenhum resultado finalizado." />
             <CompactList title="Próximos jogos" matches={upcoming} state={state} empty="Todos os jogos foram finalizados." />
-          </div>
-        </section>
+          </section>
+        )}
 
-        <section className="rounded-xl border border-white/10 bg-white/[0.055] p-4 shadow-[0_0_34px_rgba(132,204,22,0.08)] backdrop-blur">
-          <div className="mb-3 flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-amber-500" aria-hidden="true" />
-            <h2 className="text-xl font-black uppercase tracking-normal text-white">Classificação geral das 40 duplas</h2>
-          </div>
-          <OverallRankingTable ranking={overallRanking} />
-        </section>
+        {activePanel === "ranking" && (
+          <section className="rounded-xl border border-white/10 bg-white/[0.055] p-4 shadow-[0_0_34px_rgba(132,204,22,0.08)] backdrop-blur">
+            <div className="mb-3 flex items-center gap-2">
+              <Trophy className="h-5 w-5 text-amber-500" aria-hidden="true" />
+              <h2 className="text-xl font-black uppercase tracking-normal text-white">Classificação geral das 40 duplas</h2>
+            </div>
+            <OverallRankingTable ranking={overallRanking} />
+          </section>
+        )}
 
-        <section className="min-w-0 rounded-xl border border-white/10 bg-white/[0.055] p-3 shadow-[0_0_34px_rgba(132,204,22,0.08)] backdrop-blur sm:p-4">
-          <div className="mb-3 flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-amber-500" aria-hidden="true" />
-            <h2 className="text-xl font-black uppercase tracking-normal text-white">Mata-mata oficial</h2>
-          </div>
-          <div className="grid min-w-0 gap-3 xl:grid-cols-2">
-            {bracket.map((match) => (
-              <KnockoutAdminCard
-                key={`${match.id}-${match.status}-${match.scoreA ?? "a"}-${match.scoreB ?? "b"}-${match.winnerId ?? "none"}`}
-                match={match}
-                state={state}
-                onStart={actions.startKnockoutMatch}
-                onSave={actions.saveKnockoutScore}
-                onReopen={actions.reopenKnockoutMatch}
-              />
-            ))}
-          </div>
-        </section>
-
-        <section className="flex flex-col gap-4">
-          {state.groups.map((group) => {
-            const ranking = calculateGroupRanking(state, group.id);
-            const matches = getMatchesByGroup(state, group.id);
-            const pairs = state.pairs.filter((pair) => pair.groupId === group.id).sort((a, b) => a.seed - b.seed);
-
-            return (
-              <details key={group.id} className="overflow-hidden rounded-xl border border-white/10 bg-white/[0.055] shadow-[0_0_26px_rgba(255,255,255,0.04)]" open={group.id === "G1"}>
-                <summary className={`cursor-pointer rounded-t-lg bg-gradient-to-r ${group.theme.gradient} p-4 text-white`}>
-                  <span className="text-lg font-black uppercase tracking-normal">
-                    Grupo {group.number} · {group.name}
-                  </span>
-                </summary>
-
-                <div className="grid gap-4 p-4 xl:grid-cols-[380px_1fr]">
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="mb-3 text-sm font-black uppercase text-slate-300">Editar duplas</h3>
-                      <div className="space-y-2">
-                        {pairs.map((pair) => (
-                          <PairNameEditor key={pair.id} pair={pair} onSave={actions.updatePairName} />
-                        ))}
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="mb-3 flex items-center justify-between gap-2">
-                        <h3 className="text-sm font-black uppercase text-slate-300">Desempate manual</h3>
-                        <button
-                          type="button"
-                          onClick={() => actions.clearManualRank(group.id)}
-                          className="rounded-md border border-white/10 bg-white/[0.04] px-2.5 py-1 text-xs font-black uppercase text-slate-200"
-                        >
-                          Limpar
-                        </button>
-                      </div>
-                      <div className="space-y-2">
-                        {ranking.map((row) => (
-                          <div key={row.pair.id} className="flex items-center justify-between gap-2 rounded-md border border-white/10 bg-black/30 p-2">
-                            <span className="min-w-0 truncate text-sm font-black text-white">{row.position}º {row.pair.name}</span>
-                            <div className="flex gap-1">
-                              <RankButton label="Subir" onClick={() => actions.moveManualRank(group.id as GroupId, row.pair.id, -1)} icon="up" />
-                              <RankButton label="Descer" onClick={() => actions.moveManualRank(group.id as GroupId, row.pair.id, 1)} icon="down" />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <RankingTable ranking={ranking} compact />
-                  </div>
-
-                  <div className="space-y-3">
-                    <h3 className="text-sm font-black uppercase text-slate-300">Corrigir resultados</h3>
-                    {matches.map((match) => (
-                      <MatchRow
-                        key={`${match.id}-${match.status}-${match.scoreA ?? "a"}-${match.scoreB ?? "b"}`}
-                        state={state}
-                        match={match}
-                        actor="admin"
-                        onStart={actions.startMatch}
-                        onSave={actions.saveGroupScore}
-                        onReopen={actions.reopenMatch}
-                        dense
-                      />
-                    ))}
-                  </div>
-                </div>
-              </details>
-            );
-          })}
-        </section>
-
-        <section className="rounded-xl border border-white/10 bg-white/[0.055] p-4 shadow-[0_0_34px_rgba(132,204,22,0.08)] backdrop-blur">
-          <h2 className="mb-3 text-xl font-black uppercase tracking-normal text-white">Log de alterações</h2>
-          <div className="max-h-96 space-y-2 overflow-auto">
-            {state.logs.map((log) => (
-              <div key={log.id} className="rounded-md border border-white/10 bg-black/30 p-3 text-sm">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-md bg-lime-300 px-2 py-0.5 text-xs font-black uppercase text-slate-950">{log.actor}</span>
-                  <span className="text-xs font-bold text-slate-400">{formatDateTime(log.at)}</span>
-                </div>
-                <div className="mt-1 font-bold text-slate-100">{log.message}</div>
+        {activePanel === "mata" && (
+          <section className="min-w-0 rounded-xl border border-white/10 bg-white/[0.055] p-3 shadow-[0_0_34px_rgba(132,204,22,0.08)] backdrop-blur sm:p-4">
+            <div className="mb-3 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex items-center gap-2">
+                <Trophy className="h-5 w-5 text-amber-500" aria-hidden="true" />
+                <h2 className="text-xl font-black uppercase tracking-normal text-white">Mata-mata oficial</h2>
               </div>
-            ))}
-          </div>
-        </section>
+              <PhaseFilter activePhase={activeKnockoutPhase} onChange={setActiveKnockoutPhase} />
+            </div>
+            <div className="grid min-w-0 gap-3 xl:grid-cols-2">
+              {visibleBracket.map((match) => (
+                <KnockoutAdminCard
+                  key={`${match.id}-${match.status}-${match.scoreA ?? "a"}-${match.scoreB ?? "b"}-${match.winnerId ?? "none"}`}
+                  match={match}
+                  state={state}
+                  onStart={actions.startKnockoutMatch}
+                  onSave={actions.saveKnockoutScore}
+                  onReopen={actions.reopenKnockoutMatch}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {activePanel === "grupos" && (
+          <section className="flex flex-col gap-4">
+            <GroupFilter state={state} activeGroupId={activeGroupId} onChange={setActiveGroupId} />
+            {visibleGroups.map((group) => {
+              const ranking = calculateGroupRanking(state, group.id);
+              const matches = getMatchesByGroup(state, group.id);
+              const pairs = state.pairs.filter((pair) => pair.groupId === group.id).sort((a, b) => a.seed - b.seed);
+
+              return (
+                <details key={group.id} className="overflow-hidden rounded-xl border border-white/10 bg-white/[0.055] shadow-[0_0_26px_rgba(255,255,255,0.04)]">
+                  <summary className={`cursor-pointer rounded-t-lg bg-gradient-to-r ${group.theme.gradient} p-4 text-white`}>
+                    <span className="text-lg font-black uppercase tracking-normal">
+                      Grupo {group.number} · {group.name}
+                    </span>
+                  </summary>
+
+                  <div className="grid gap-4 p-4 xl:grid-cols-[380px_1fr]">
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="mb-3 text-sm font-black uppercase text-slate-300">Editar duplas</h3>
+                        <div className="space-y-2">
+                          {pairs.map((pair) => (
+                            <PairNameEditor key={pair.id} pair={pair} onSave={actions.updatePairName} />
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="mb-3 flex items-center justify-between gap-2">
+                          <h3 className="text-sm font-black uppercase text-slate-300">Desempate manual</h3>
+                          <button
+                            type="button"
+                            onClick={() => actions.clearManualRank(group.id)}
+                            className="rounded-md border border-white/10 bg-white/[0.04] px-2.5 py-1 text-xs font-black uppercase text-slate-200"
+                          >
+                            Limpar
+                          </button>
+                        </div>
+                        <div className="space-y-2">
+                          {ranking.map((row) => (
+                            <div key={row.pair.id} className="flex items-center justify-between gap-2 rounded-md border border-white/10 bg-black/30 p-2">
+                              <span className="min-w-0 truncate text-sm font-black text-white">{row.position}º {row.pair.name}</span>
+                              <div className="flex gap-1">
+                                <RankButton label="Subir" onClick={() => actions.moveManualRank(group.id as GroupId, row.pair.id, -1)} icon="up" />
+                                <RankButton label="Descer" onClick={() => actions.moveManualRank(group.id as GroupId, row.pair.id, 1)} icon="down" />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <RankingTable ranking={ranking} compact />
+                    </div>
+
+                    <div className="space-y-3">
+                      <h3 className="text-sm font-black uppercase text-slate-300">Corrigir resultados</h3>
+                      {matches.map((match) => (
+                        <MatchRow
+                          key={`${match.id}-${match.status}-${match.scoreA ?? "a"}-${match.scoreB ?? "b"}`}
+                          state={state}
+                          match={match}
+                          actor="admin"
+                          onStart={actions.startMatch}
+                          onSave={actions.saveGroupScore}
+                          onReopen={actions.reopenMatch}
+                          dense
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </details>
+              );
+            })}
+          </section>
+        )}
+
+        {activePanel === "log" && <LogPanel state={state} />}
       </div>
     </main>
+  );
+}
+
+function AdminPanelNav({ activePanel, onChange }: { activePanel: AdminPanel; onChange: (panel: AdminPanel) => void }) {
+  return (
+    <section className="sticky top-2 z-20 overflow-hidden rounded-xl border border-white/10 bg-black/85 p-2 shadow-[0_0_34px_rgba(132,204,22,0.10)] backdrop-blur">
+      <div className="overflow-x-auto">
+        <div className="flex min-w-max gap-2">
+          {adminPanels.map((panel) => (
+            <button
+              key={panel.id}
+              type="button"
+              onClick={() => onChange(panel.id)}
+              className={`min-h-14 rounded-lg border px-4 text-left transition ${
+                activePanel === panel.id
+                  ? "border-lime-300 bg-lime-300 text-slate-950 shadow-[0_0_24px_rgba(132,204,22,0.22)]"
+                  : "border-white/10 bg-white/[0.045] text-white hover:border-lime-300/40"
+              }`}
+            >
+              <div className="text-xs font-black uppercase">{panel.label}</div>
+              <div className={`mt-0.5 text-[10px] font-bold uppercase ${activePanel === panel.id ? "text-slate-800" : "text-slate-500"}`}>{panel.description}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function QualifiedPanel({ qualified, state }: { qualified: ReturnType<typeof getQualifiedPairs>; state: TournamentState }) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-white/[0.055] p-4 shadow-[0_0_34px_rgba(132,204,22,0.08)] backdrop-blur">
+      <div className="mb-3 flex items-center gap-2">
+        <ShieldCheck className="h-5 w-5 text-emerald-600" aria-hidden="true" />
+        <h2 className="text-xl font-black uppercase tracking-normal text-white">Classificados provisórios</h2>
+      </div>
+      <div className="grid gap-2 md:grid-cols-2">
+        {qualified.map((row) => {
+          const group = state.groups.find((item) => item.id === row.pair.groupId);
+          return (
+            <div key={row.pair.id} className="rounded-md border border-emerald-300/25 bg-emerald-400/10 p-3">
+              <div className="text-xs font-black uppercase text-emerald-300">
+                Grupo {group?.number} · {row.position}º colocado
+              </div>
+              <div className="mt-1 font-black text-white">{row.pair.name}</div>
+              <div className="mt-1 text-xs font-bold text-emerald-100">
+                V {row.wins} · Saldo {row.balance > 0 ? "+" : ""}
+                {row.balance} · PF {row.pointsFor}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function PhaseFilter({ activePhase, onChange }: { activePhase: KnockoutFilter; onChange: (phase: KnockoutFilter) => void }) {
+  return (
+    <div className="overflow-x-auto">
+      <div className="flex min-w-max gap-2">
+        {knockoutFilters.map((phase) => (
+          <button
+            key={phase.id}
+            type="button"
+            onClick={() => onChange(phase.id)}
+            className={`h-10 rounded-md border px-3 text-xs font-black uppercase transition ${
+              activePhase === phase.id
+                ? "border-amber-300 bg-amber-300 text-slate-950"
+                : "border-white/10 bg-white/[0.045] text-slate-100 hover:border-amber-300/50"
+            }`}
+          >
+            {phase.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function GroupFilter({ state, activeGroupId, onChange }: { state: TournamentState; activeGroupId: GroupId | "all"; onChange: (groupId: GroupId | "all") => void }) {
+  return (
+    <div className="overflow-hidden rounded-xl border border-white/10 bg-black/55 p-2 shadow-[0_0_24px_rgba(132,204,22,0.08)]">
+      <div className="overflow-x-auto">
+        <div className="flex min-w-max gap-2">
+          <button
+            type="button"
+            onClick={() => onChange("all")}
+            className={`h-11 rounded-md border px-3 text-xs font-black uppercase transition ${
+              activeGroupId === "all" ? "border-lime-300 bg-lime-300 text-slate-950" : "border-white/10 bg-white/[0.045] text-white"
+            }`}
+          >
+            Todos
+          </button>
+          {state.groups.map((group) => (
+            <button
+              key={group.id}
+              type="button"
+              onClick={() => onChange(group.id as GroupId)}
+              className={`h-11 rounded-md border px-3 text-xs font-black uppercase transition ${
+                activeGroupId === group.id ? "border-lime-300 bg-lime-300 text-slate-950" : "border-white/10 bg-white/[0.045] text-white"
+              }`}
+            >
+              Grupo {group.number}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LogPanel({ state }: { state: TournamentState }) {
+  return (
+    <section className="rounded-xl border border-white/10 bg-white/[0.055] p-4 shadow-[0_0_34px_rgba(132,204,22,0.08)] backdrop-blur">
+      <h2 className="mb-3 text-xl font-black uppercase tracking-normal text-white">Log de alterações</h2>
+      <div className="max-h-[70vh] space-y-2 overflow-auto">
+        {state.logs.map((log) => (
+          <div key={log.id} className="rounded-md border border-white/10 bg-black/30 p-3 text-sm">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-md bg-lime-300 px-2 py-0.5 text-xs font-black uppercase text-slate-950">{log.actor}</span>
+              <span className="text-xs font-bold text-slate-400">{formatDateTime(log.at)}</span>
+            </div>
+            <div className="mt-1 font-bold text-slate-100">{log.message}</div>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 

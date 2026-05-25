@@ -1,10 +1,11 @@
 "use client";
 
-import { FormEvent, ReactNode, useEffect, useState } from "react";
+import type { FormEvent, ReactNode } from "react";
+import { useState } from "react";
 import { LockKeyhole, ShieldCheck } from "lucide-react";
 
 const SESSION_KEY = "biobeach:admin-session";
-const ADMIN_PASSWORD = "biobeach2026";
+const ADMIN_PASSWORD = "renan123";
 
 export type AdminRole = "admin" | `mesario-${number}`;
 
@@ -36,29 +37,19 @@ export function clearAdminSession() {
 }
 
 export function useAdminSession() {
-  const [session, setSession] = useState<AdminSession | null>(null);
-
-  useEffect(() => {
-    setSession(getAdminSession());
-  }, []);
-
-  return session;
+  return getAdminSession();
 }
 
 export function AdminGate({
   children,
   allowedRoles,
-  title = "Acesso operacional BioBeach",
+  title = "Acesso operacional BIOBEACH",
 }: {
   children: ReactNode;
   allowedRoles?: AdminRole[];
   title?: string;
 }) {
-  const [session, setSession] = useState<AdminSession | null>(null);
-
-  useEffect(() => {
-    setSession(getAdminSession());
-  }, []);
+  const [session, setSession] = useState<AdminSession | null>(() => getAdminSession());
 
   const allowed = session && (!allowedRoles?.length || allowedRoles.includes(session.role) || session.role === "admin");
 
@@ -148,7 +139,7 @@ function AdminLoginPanel({
         Entrar
       </button>
 
-      <div className="mt-3 text-xs font-bold text-slate-500">Senha inicial local: biobeach2026</div>
+      <div className="mt-3 text-xs font-bold text-slate-500">Senha inicial local: renan123</div>
     </form>
   );
 }

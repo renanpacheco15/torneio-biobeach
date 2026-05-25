@@ -14,17 +14,18 @@ export default function OverallRankingPage() {
   const leader = ranking[0];
 
   return (
-    <main className="min-h-screen px-4 py-4 sm:px-6 lg:px-8">
-      <div className="mx-auto flex max-w-7xl flex-col gap-4">
-        <header className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <main className="min-h-screen bg-[#020403] px-4 py-4 text-white sm:px-6 lg:px-8">
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(132,204,22,0.12),transparent_34%),radial-gradient(circle_at_88%_20%,rgba(245,197,66,0.10),transparent_28%)]" />
+      <div className="relative z-10 mx-auto flex max-w-7xl flex-col gap-4">
+        <header className="rounded-lg border border-white/10 bg-black/55 p-4 shadow-[0_0_34px_rgba(132,204,22,0.08)] backdrop-blur">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <Brand compact />
+            <Brand dark compact />
             <div className="flex flex-wrap gap-2">
-              <Link href="/tabela" className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-black uppercase text-white">
+              <Link href="/tabela" className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-lime-300 px-4 text-sm font-black uppercase text-slate-950">
                 <Trophy className="h-4 w-4" aria-hidden="true" />
                 Tabela
               </Link>
-              <Link href="/" className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-200 px-4 text-sm font-black uppercase text-slate-800">
+              <Link href="/" className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-white/10 bg-white/[0.04] px-4 text-sm font-black uppercase text-slate-200">
                 <ChevronLeft className="h-4 w-4" aria-hidden="true" />
                 Início
               </Link>
@@ -32,7 +33,7 @@ export default function OverallRankingPage() {
           </div>
         </header>
 
-        <section className="rounded-lg bg-slate-950 p-5 text-white shadow-broadcast">
+        <section className="rounded-lg border border-white/10 bg-white/[0.055] p-5 text-white shadow-[0_0_54px_rgba(132,204,22,0.10)] backdrop-blur">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <div className="flex items-center gap-2 text-sm font-black uppercase text-amber-300">
@@ -54,15 +55,15 @@ export default function OverallRankingPage() {
         </section>
 
         {leader && (
-          <section className="rounded-lg border border-amber-200 bg-amber-50 p-4 shadow-sm">
+          <section className="rounded-lg border border-amber-300/25 bg-amber-300/10 p-4 shadow-[0_0_34px_rgba(245,197,66,0.10)]">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
-                <div className="flex items-center gap-2 text-xs font-black uppercase text-amber-700">
+                <div className="flex items-center gap-2 text-xs font-black uppercase text-amber-300">
                   <Trophy className="h-4 w-4" aria-hidden="true" />
                   Melhor campanha agora
                 </div>
-                <div className="mt-1 text-2xl font-black uppercase tracking-normal text-amber-950">{leader.pair.name}</div>
-                <div className="mt-1 text-sm font-bold text-amber-800">
+                <div className="mt-1 text-2xl font-black uppercase tracking-normal text-white">{leader.pair.name}</div>
+                <div className="mt-1 text-sm font-bold text-amber-100">
                   Grupo {leader.group.number} · {leader.groupPosition}º no grupo
                 </div>
               </div>
@@ -93,9 +94,9 @@ function HeroMetric({ label, value }: { label: string; value: string }) {
 
 function SmallMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="min-w-16 rounded-md bg-white px-3 py-2">
-      <div className="text-2xl font-black text-amber-950">{value}</div>
-      <div className="text-xs font-black uppercase text-amber-700">{label}</div>
+    <div className="min-w-16 rounded-md bg-white/10 px-3 py-2">
+      <div className="text-2xl font-black text-white">{value}</div>
+      <div className="text-xs font-black uppercase text-amber-300">{label}</div>
     </div>
   );
 }

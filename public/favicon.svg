@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="BIOBEACH">
+  <rect width="64" height="64" rx="14" fill="#020403"/>
+  <path d="M14 18h16c7 0 11 3.5 11 9 0 3.2-1.5 5.7-4.5 7.1 4.1 1.2 6.5 4.2 6.5 8.5 0 6.1-4.5 9.4-12.1 9.4H14V18Zm8.4 7v7h6.5c2.6 0 4-1.2 4-3.5S31.4 25 28.7 25h-6.3Zm0 13.4V45h7.7c2.9 0 4.5-1.1 4.5-3.3 0-2.3-1.6-3.3-4.7-3.3h-7.5Z" fill="#ffffff"/>
+  <path d="M45 17h6v30h-6V17Zm-4 29h14v6H41v-6Z" fill="#b7ff4a"/>
+</svg>

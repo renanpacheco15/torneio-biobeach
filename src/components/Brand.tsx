@@ -28,7 +28,7 @@ export function Brand({ compact = false, dark = false }: BrandProps) {
         compact ? "h-14 w-44" : "h-16 w-56",
       )}
     >
-      <Image src="/sponsors/biobeach.jpeg" alt="BIOBeach Beach Sports" fill sizes={compact ? "176px" : "224px"} className="object-contain p-2" />
+      <Image src="/sponsors/biobeach.jpeg" alt="BIOBEACH Futevôlei" fill sizes={compact ? "176px" : "224px"} className="object-contain p-2" />
     </div>
   );
 }

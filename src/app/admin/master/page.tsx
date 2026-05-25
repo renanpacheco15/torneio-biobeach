@@ -105,11 +105,11 @@ function MasterAdminContent() {
                 className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-black uppercase text-white"
               >
                 <Download className="h-4 w-4" aria-hidden="true" />
-                Backup
+                Exportar dados
               </button>
               <label className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-4 text-sm font-black uppercase text-slate-800">
                 <FileUp className="h-4 w-4" aria-hidden="true" />
-                Importar
+                Importar dados
                 <input type="file" accept="application/json" onChange={importBackup} className="sr-only" />
               </label>
               <button

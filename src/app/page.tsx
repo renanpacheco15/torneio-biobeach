@@ -4,11 +4,12 @@ import Link from "next/link";
 import { ArrowRight, ChevronRight, Trophy } from "lucide-react";
 import { CourtSponsorBackdrop } from "@/components/Sponsors";
 import { OfficialHeader, PremiumFooter } from "@/components/OfficialChrome";
+import { getCourtStatusLabel } from "@/lib/courts";
+import { getCourtSponsor } from "@/lib/sponsors";
 import { calculateOverallRanking, getTournamentProgress } from "@/lib/tournament/calculations";
 import { GROUPS } from "@/lib/tournament/data";
-import { getCourtSponsor } from "@/lib/sponsors";
 import { useTournamentStore } from "@/lib/tournament/store";
-import type { Group } from "@/lib/tournament/types";
+import type { CourtStatus, Group } from "@/lib/tournament/types";
 import { cn } from "@/lib/utils";
 
 export default function Home() {
@@ -29,20 +30,21 @@ export default function Home() {
             Arena 360 · Futevôlei
           </div>
           <h1 className="mt-5 text-5xl font-black uppercase leading-[0.9] tracking-normal text-white drop-shadow-[0_0_24px_rgba(255,255,255,0.14)] sm:text-6xl lg:text-7xl">
-            Torneio BioBeach
+            Torneio BIOBEACH
           </h1>
           <h2 className="mx-auto mt-5 max-w-4xl text-2xl font-black uppercase leading-tight text-lime-200 sm:text-3xl lg:text-4xl">
             Clique na sua quadra para ver o grupo
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-sm font-bold leading-6 text-slate-300 sm:text-base">
-            Classificação, confrontos e resultados ao vivo em poucos toques.
+            Classificação, confrontos e transmissões em poucos toques.
           </p>
         </section>
 
-        <section aria-label="Acesso aos grupos" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {GROUPS.map((group) => (
-            <CourtAccessCard key={group.id} group={group} />
-          ))}
+        <section id="grupos" aria-label="Acesso aos grupos" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {GROUPS.map((group) => {
+            const status = state.settings.courtStatuses[`court-${group.number}`] ?? "active";
+            return <CourtAccessCard key={group.id} group={group} status={status} />;
+          })}
         </section>
 
         <section id="ranking-geral" className="mx-auto w-full max-w-5xl rounded-xl border border-lime-300/20 bg-white/[0.055] p-5 shadow-[0_0_54px_rgba(132,204,22,0.10)] backdrop-blur sm:p-6">
@@ -52,8 +54,8 @@ export default function Home() {
                 <Trophy className="h-4 w-4" aria-hidden="true" />
                 Ranking Geral
               </div>
-              <h2 className="mt-4 text-3xl font-black uppercase leading-tight tracking-normal sm:text-4xl">
-                Classificação ao vivo
+              <h2 className="mt-4 text-3xl font-black uppercase leading-tight tracking-normal text-white sm:text-4xl">
+                Classificação oficial
               </h2>
               <p className="mt-3 max-w-2xl text-sm font-bold leading-6 text-slate-300 sm:text-base">
                 Top 5 do torneio por vitórias, saldo, pontos feitos e pontos sofridos.
@@ -71,14 +73,16 @@ export default function Home() {
             {ranking.slice(0, 5).map((row) => (
               <div
                 key={row.pair.id}
-                className="grid min-h-16 grid-cols-[auto_1fr] items-center gap-3 rounded-lg border border-white/10 bg-slate-950/70 px-3 py-3 sm:px-4"
+                className="grid min-h-16 grid-cols-[auto_1fr] items-center gap-3 rounded-lg border border-white/10 bg-slate-950/90 px-3 py-3 sm:px-4"
               >
                 <div className="flex h-11 w-11 items-center justify-center rounded-md bg-lime-300 text-lg font-black text-slate-950">
                   {row.overallPosition}
                 </div>
                 <div className="min-w-0">
-                  <div className="text-base font-black uppercase leading-snug text-white break-words">{row.pair.name}</div>
-                  <div className="mt-1 text-xs font-black uppercase text-slate-400">Grupo {row.group.number} · {row.group.shortName}</div>
+                  <div className="break-words text-base font-black uppercase leading-snug text-white">{row.pair.name}</div>
+                  <div className="mt-1 text-xs font-black uppercase text-slate-400">
+                    Grupo {row.group.number} · {row.group.shortName}
+                  </div>
                 </div>
                 <div className="col-span-2 grid grid-cols-3 gap-2 sm:grid-cols-6">
                   <MiniStat label="J" value={row.played.toString()} />
@@ -102,23 +106,23 @@ export default function Home() {
             </Link>
           </div>
         </section>
-
       </div>
       <PremiumFooter />
     </main>
   );
 }
 
-function CourtAccessCard({ group }: { group: Group }) {
+function CourtAccessCard({ group, status }: { group: Group; status: CourtStatus }) {
   const sponsor = getCourtSponsor(group.id);
   const courtNumber = String(group.number).padStart(2, "0");
+  const disabled = status !== "active";
+  const cardClassName = cn(
+    `group relative min-h-44 overflow-hidden rounded-lg border border-white/10 bg-gradient-to-br ${group.theme.gradient} p-4 text-white shadow-[0_0_34px_rgba(255,255,255,0.05)] transition duration-200 focus:outline-none focus:ring-2 focus:ring-lime-300 sm:min-h-48`,
+    disabled ? "cursor-not-allowed opacity-65 grayscale" : "hover:-translate-y-0.5 hover:shadow-[0_0_46px_rgba(132,204,22,0.18)]",
+  );
 
-  return (
-    <Link
-      href={`/atleta?grupo=${group.number}`}
-      className={`group relative min-h-44 overflow-hidden rounded-lg border border-white/10 bg-gradient-to-br ${group.theme.gradient} p-4 text-white shadow-[0_0_34px_rgba(255,255,255,0.05)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_0_46px_rgba(132,204,22,0.18)] focus:outline-none focus:ring-2 focus:ring-lime-300 sm:min-h-48`}
-      aria-label={`Abrir grupo da Quadra ${courtNumber}, ${group.shortName}`}
-    >
+  const content = (
+    <>
       <CourtSponsorBackdrop group={group} />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.25),transparent_30%),linear-gradient(180deg,rgba(0,0,0,0.08),rgba(0,0,0,0.58))]" />
 
@@ -140,13 +144,33 @@ function CourtAccessCard({ group }: { group: Group }) {
           <div className="mt-2 text-xs font-black uppercase text-white/75">{sponsor.name}</div>
         </div>
       </div>
+
+      {disabled && (
+        <div className="absolute inset-x-3 bottom-3 z-20 rounded-md border border-white/15 bg-black/70 px-3 py-2 text-center text-xs font-black uppercase text-white backdrop-blur">
+          {getCourtStatusLabel(status)}
+        </div>
+      )}
+    </>
+  );
+
+  if (disabled) {
+    return (
+      <div className={cardClassName} aria-disabled="true" aria-label={`Quadra ${courtNumber} indisponível`}>
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <Link href={`/atleta?grupo=${group.number}`} className={cardClassName} aria-label={`Abrir grupo da Quadra ${courtNumber}, ${group.shortName}`}>
+      {content}
     </Link>
   );
 }
 
 function RankingMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-white/10 bg-slate-950/70 px-3 py-3 sm:px-4">
+    <div className="rounded-md border border-white/10 bg-slate-950/90 px-3 py-3 sm:px-4">
       <div className="text-2xl font-black text-white sm:text-3xl">{value}</div>
       <div className="text-[10px] font-black uppercase text-lime-300">{label}</div>
     </div>

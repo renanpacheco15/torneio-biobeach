@@ -3,8 +3,11 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Torneio BioBeach Live",
-  description: "Operação ao vivo do Torneio BioBeach.",
+  title: "Torneio BIOBEACH",
+  description: "Plataforma oficial do Torneio BIOBEACH.",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({

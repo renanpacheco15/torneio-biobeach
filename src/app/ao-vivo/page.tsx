@@ -92,7 +92,7 @@ export default function LiveStreamsPage() {
                       </Link>
                     ) : (
                       <div className="flex h-12 w-full items-center justify-center rounded-md border border-white/20 bg-black/35 px-3 text-center text-xs font-black uppercase text-white">
-                        {isActive ? "Link em breve" : court.reserve ? "Reserva desativada" : "Quadra indisponível"}
+                        {isActive ? "Transmissão em breve" : court.reserve ? "Reserva / desativada" : "Quadra indisponível"}
                       </div>
                     )}
                   </div>

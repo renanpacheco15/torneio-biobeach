@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { ChevronLeft, Medal, Trophy } from "lucide-react";
-import { Brand } from "@/components/Brand";
+import { Medal, Trophy } from "lucide-react";
+import { OfficialHeader, PremiumFooter } from "@/components/OfficialChrome";
 import { OverallRankingTable } from "@/components/OverallRankingTable";
 import { calculateOverallRanking, getTournamentProgress } from "@/lib/tournament/calculations";
 import { useTournamentStore } from "@/lib/tournament/store";
@@ -14,26 +13,12 @@ export default function OverallRankingPage() {
   const leader = ranking[0];
 
   return (
-    <main className="min-h-screen bg-[#020403] px-4 py-4 text-white sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-[#020403] text-white">
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(132,204,22,0.12),transparent_34%),radial-gradient(circle_at_88%_20%,rgba(245,197,66,0.10),transparent_28%)]" />
-      <div className="relative z-10 mx-auto flex max-w-7xl flex-col gap-4">
-        <header className="rounded-lg border border-white/10 bg-black/55 p-4 shadow-[0_0_34px_rgba(132,204,22,0.08)] backdrop-blur">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <Brand dark compact />
-            <div className="flex flex-wrap gap-2">
-              <Link href="/tabela" className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-lime-300 px-4 text-sm font-black uppercase text-slate-950">
-                <Trophy className="h-4 w-4" aria-hidden="true" />
-                Tabela
-              </Link>
-              <Link href="/" className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-white/10 bg-white/[0.04] px-4 text-sm font-black uppercase text-slate-200">
-                <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-                Início
-              </Link>
-            </div>
-          </div>
-        </header>
+      <OfficialHeader />
 
-        <section className="rounded-lg border border-white/10 bg-white/[0.055] p-5 text-white shadow-[0_0_54px_rgba(132,204,22,0.10)] backdrop-blur">
+      <div className="relative z-10 mx-auto flex max-w-[1440px] flex-col gap-4 px-4 py-6 sm:px-6 lg:px-8">
+        <section className="rounded-xl border border-white/10 bg-white/[0.055] p-5 text-white shadow-[0_0_54px_rgba(132,204,22,0.10)] backdrop-blur sm:p-7">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <div className="flex items-center gap-2 text-sm font-black uppercase text-amber-300">
@@ -55,7 +40,7 @@ export default function OverallRankingPage() {
         </section>
 
         {leader && (
-          <section className="rounded-lg border border-amber-300/25 bg-amber-300/10 p-4 shadow-[0_0_34px_rgba(245,197,66,0.10)]">
+          <section className="rounded-xl border border-amber-300/25 bg-amber-300/10 p-4 shadow-[0_0_34px_rgba(245,197,66,0.10)]">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
                 <div className="flex items-center gap-2 text-xs font-black uppercase text-amber-300">
@@ -79,6 +64,8 @@ export default function OverallRankingPage() {
 
         <OverallRankingTable ranking={ranking} />
       </div>
+
+      <PremiumFooter />
     </main>
   );
 }

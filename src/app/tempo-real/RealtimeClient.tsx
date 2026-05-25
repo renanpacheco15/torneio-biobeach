@@ -36,9 +36,41 @@ const phaseTabs: Array<{ id: RealtimePhase; label: string }> = [
 export default function RealtimeClient() {
   const { state } = useTournamentStore();
   const [activePhase, setActivePhase] = useState<RealtimePhase>("groups");
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const bracket = useMemo(() => getBracketView(state), [state]);
-  const updatedAt = formatUpdatedAt(state.updatedAt);
+
+  useEffect(() => {
+    const syncFullscreen = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    const exitFallback = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !document.fullscreenElement) setIsFullscreen(false);
+    };
+
+    syncFullscreen();
+    document.addEventListener("fullscreenchange", syncFullscreen);
+    window.addEventListener("keydown", exitFallback);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", syncFullscreen);
+      window.removeEventListener("keydown", exitFallback);
+    };
+  }, []);
+
+  const handleFullScreen = () => {
+    setIsFullscreen(true);
+    document.documentElement.requestFullscreen?.().catch(() => undefined);
+  };
+
+  if (isFullscreen) {
+    return (
+      <main className="h-screen overflow-hidden bg-[#020403] p-3 text-white">
+        <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_16%_0%,rgba(132,204,22,0.16),transparent_34%),radial-gradient(circle_at_86%_14%,rgba(245,197,66,0.12),transparent_30%),linear-gradient(180deg,rgba(255,255,255,0.035),transparent_32%)]" />
+        <div className="relative z-10 h-full">
+          <GroupsPanel state={state} fullscreen />
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#020403] text-white">
@@ -73,7 +105,7 @@ export default function RealtimeClient() {
               </div>
               <button
                 type="button"
-                onClick={requestFullScreen}
+                onClick={handleFullScreen}
                 className="mt-1 inline-flex h-10 items-center justify-center gap-2 rounded-md border border-lime-300/30 bg-lime-300/10 px-3 text-[11px] font-black uppercase text-lime-100 transition hover:bg-lime-300 hover:text-slate-950"
               >
                 <Expand className="h-4 w-4" aria-hidden="true" />
@@ -84,7 +116,7 @@ export default function RealtimeClient() {
           </div>
         </section>
 
-        <section className="flex flex-col gap-2 rounded-xl border border-white/10 bg-black/45 p-2.5 backdrop-blur xl:flex-row xl:items-center xl:justify-between">
+        <section className="rounded-xl border border-white/10 bg-black/45 p-2.5 backdrop-blur">
           <div className="overflow-x-auto">
             <div className="flex min-w-max gap-2">
               {phaseTabs.map((tab) => (
@@ -104,10 +136,6 @@ export default function RealtimeClient() {
               ))}
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2 text-xs font-black uppercase text-slate-400">
-            <span className="rounded-md border border-white/10 bg-white/[0.04] px-3 py-1.5">Atualizado automaticamente</span>
-            <span className="rounded-md border border-white/10 bg-white/[0.04] px-3 py-1.5">Última leitura: {updatedAt}</span>
-          </div>
         </section>
 
         {activePhase === "groups" ? <GroupsPanel state={state} /> : <KnockoutPanel state={state} bracket={bracket} phase={activePhase} />}
@@ -116,7 +144,7 @@ export default function RealtimeClient() {
   );
 }
 
-function GroupsPanel({ state }: { state: TournamentState }) {
+function GroupsPanel({ state, fullscreen = false }: { state: TournamentState; fullscreen?: boolean }) {
   const [groupBlock, setGroupBlock] = useState(0);
   const blocks = useMemo(() => [state.groups.slice(0, 4), state.groups.slice(4, 8)], [state.groups]);
   const visibleGroups = blocks[groupBlock] ?? blocks[0];
@@ -130,34 +158,36 @@ function GroupsPanel({ state }: { state: TournamentState }) {
   }, [blocks.length]);
 
   return (
-    <section className="grid gap-3">
-      <div className="flex flex-col gap-2 rounded-xl border border-white/10 bg-black/35 p-2.5 backdrop-blur md:flex-row md:items-center md:justify-between">
-        <div>
-          <div className="text-xs font-black uppercase text-lime-200">Fase de grupos no telão</div>
-          <div className="mt-1 text-xs font-bold text-slate-300 xl:text-sm">
-            Bloco {groupBlock + 1} de 2 · troca automática a cada 12s para manter leitura grande na TV.
+    <section className={cn("grid gap-3", fullscreen && "h-full")}>
+      {!fullscreen && (
+        <div className="flex flex-col gap-2 rounded-xl border border-white/10 bg-black/35 p-2.5 backdrop-blur md:flex-row md:items-center md:justify-between">
+          <div>
+            <div className="text-xs font-black uppercase text-lime-200">Fase de grupos no telão</div>
+            <div className="mt-1 text-xs font-bold text-slate-300 xl:text-sm">
+              Bloco {groupBlock + 1} de 2 · troca automática a cada 12s para manter leitura grande na TV.
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:flex">
+            {blocks.map((block, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => setGroupBlock(index)}
+                className={cn(
+                  "h-10 rounded-md border px-3 text-xs font-black uppercase transition xl:h-9",
+                  groupBlock === index
+                    ? "border-lime-300 bg-lime-300 text-slate-950"
+                    : "border-white/10 bg-white/[0.05] text-white hover:border-lime-300/40",
+                )}
+              >
+                Grupos {block[0]?.number} a {block[block.length - 1]?.number}
+              </button>
+            ))}
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-2 sm:flex">
-          {blocks.map((block, index) => (
-            <button
-              key={index}
-              type="button"
-              onClick={() => setGroupBlock(index)}
-              className={cn(
-                "h-10 rounded-md border px-3 text-xs font-black uppercase transition xl:h-9",
-                groupBlock === index
-                  ? "border-lime-300 bg-lime-300 text-slate-950"
-                  : "border-white/10 bg-white/[0.05] text-white hover:border-lime-300/40",
-              )}
-            >
-              Grupos {block[0]?.number} a {block[block.length - 1]?.number}
-            </button>
-          ))}
-        </div>
-      </div>
+      )}
 
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <div className={cn("grid gap-3 md:grid-cols-2 xl:grid-cols-4", fullscreen && "h-full")}>
         {visibleGroups.map((group) => {
           const ranking = calculateGroupRanking(state, group.id);
           const matches = getMatchesByGroup(state, group.id);
@@ -165,7 +195,7 @@ function GroupsPanel({ state }: { state: TournamentState }) {
           const live = matches.filter((match) => match.status === "live").length;
           const finalized = finished === matches.length;
 
-          return <GroupRealtimeCard key={group.id} group={group} ranking={ranking} finished={finished} live={live} finalized={finalized} />;
+          return <GroupRealtimeCard key={group.id} group={group} ranking={ranking} finished={finished} live={live} finalized={finalized} fullscreen={fullscreen} />;
         })}
       </div>
     </section>
@@ -178,18 +208,23 @@ function GroupRealtimeCard({
   finished,
   live,
   finalized,
+  fullscreen = false,
 }: {
   group: Group;
   ranking: RankedPair[];
   finished: number;
   live: number;
   finalized: boolean;
+  fullscreen?: boolean;
 }) {
   const sponsor = getCourtSponsor(group.id);
 
   return (
     <article
-      className="relative min-h-[25rem] overflow-hidden rounded-xl border bg-slate-950 p-3 shadow-[0_0_34px_rgba(255,255,255,0.045)] xl:min-h-0 xl:p-2"
+      className={cn(
+        "relative min-h-[25rem] overflow-hidden rounded-xl border bg-slate-950 p-3 shadow-[0_0_34px_rgba(255,255,255,0.045)] xl:min-h-0 xl:p-2",
+        fullscreen && "h-full xl:p-3",
+      )}
       style={{
         borderColor: `${group.theme.accent}66`,
         boxShadow: `0 0 44px ${group.theme.accent}24`,
@@ -456,19 +491,4 @@ function StatusPill({ live, label }: { live: boolean; label: string }) {
       {label}
     </span>
   );
-}
-
-function requestFullScreen() {
-  if (typeof document === "undefined") return;
-  document.documentElement.requestFullscreen?.();
-}
-
-function formatUpdatedAt(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "--:--";
-  return date.toLocaleTimeString("pt-BR", {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
 }

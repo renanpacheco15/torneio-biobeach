@@ -63,8 +63,8 @@ export default function LiveStreamsPage() {
 
                   <div className="hidden min-w-0 items-center gap-4 md:flex">
                     {court.logo && (
-                      <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-white/15 bg-white p-1.5 shadow-[0_0_18px_rgba(255,255,255,0.12)]">
-                        <Image src={court.logo} alt={court.label} fill sizes="48px" className="object-contain p-1" />
+                      <div className="relative h-12 w-20 shrink-0 overflow-hidden rounded-lg border border-white/15 bg-black/55 p-1.5 shadow-[0_0_18px_rgba(255,255,255,0.10)]">
+                        <Image src={court.logo} alt={court.label} fill sizes="80px" className="object-contain p-1" />
                       </div>
                     )}
                     <div className="min-w-0">

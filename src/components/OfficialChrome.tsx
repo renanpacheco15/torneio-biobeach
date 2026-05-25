@@ -21,29 +21,19 @@ function ArenaLogo({ mobile = false }: { mobile?: boolean }) {
   return (
     <div
       className={cn(
-        "relative flex items-center justify-center overflow-hidden rounded-lg border border-lime-300/20 bg-black shadow-[0_0_24px_rgba(132,204,22,0.10)]",
-        mobile ? "h-11 w-[8.5rem] min-[390px]:w-36" : "h-14 w-56",
+        "relative flex items-center justify-center overflow-hidden rounded-lg border border-lime-300/25 bg-black shadow-[0_0_26px_rgba(132,204,22,0.14)]",
+        mobile ? "h-12 w-[9.5rem] min-[390px]:w-40" : "h-16 w-60",
       )}
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(132,204,22,0.16),transparent_64%)]" />
-      <div className={cn("relative z-10 flex items-baseline justify-center leading-none", mobile ? "gap-1" : "gap-1.5")}>
-        <span
-          className={cn(
-            "font-black italic tracking-[-0.04em] text-[#62ccb5] drop-shadow-[0_0_10px_rgba(98,204,181,0.22)]",
-            mobile ? "text-[21px]" : "text-[34px]",
-          )}
-        >
-          Arena
-        </span>
-        <span
-          className={cn(
-            "font-black italic tracking-[-0.05em] text-[#f6ae3f] drop-shadow-[0_0_10px_rgba(246,174,63,0.22)]",
-            mobile ? "text-[23px]" : "text-[36px]",
-          )}
-        >
-          360
-        </span>
-      </div>
+      <Image
+        src="/brand/arena-360-clean.png"
+        alt="Arena 360"
+        fill
+        sizes={mobile ? "160px" : "240px"}
+        className={cn("relative z-10 object-contain", mobile ? "p-2.5" : "p-3")}
+        priority
+      />
     </div>
   );
 }
@@ -129,14 +119,14 @@ export function PremiumFooter() {
     <footer id="patrocinadores" className="border-t border-white/10 bg-black">
       <div className="mx-auto flex max-w-[1440px] flex-col gap-4 px-4 py-5 sm:px-6 lg:px-8">
         <div className="overflow-x-auto overflow-y-hidden pb-1">
-          <div className="flex min-w-max gap-2 sm:grid sm:min-w-0 sm:grid-cols-4 lg:grid-cols-8">
+          <div className="flex min-w-max gap-2.5 sm:grid sm:min-w-0 sm:grid-cols-4 lg:grid-cols-8">
             {COURT_SPONSOR_LIST.map((sponsor) => (
               <div
                 key={sponsor.groupId}
-                className="relative h-14 w-40 shrink-0 overflow-hidden rounded-md border border-white/10 bg-zinc-950 shadow-[0_0_18px_rgba(132,204,22,0.05)] sm:w-auto"
+                className="relative h-16 w-44 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-gradient-to-br from-zinc-950 via-neutral-950 to-black shadow-[0_0_20px_rgba(132,204,22,0.06)] sm:w-auto"
               >
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.10),transparent_60%)]" />
-                <Image src={sponsor.src} alt={sponsor.name} fill sizes="160px" className="object-contain p-2.5" />
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.12),transparent_62%)]" />
+                <Image src={sponsor.src} alt={sponsor.name} fill sizes="176px" className="object-contain p-3" />
               </div>
             ))}
           </div>

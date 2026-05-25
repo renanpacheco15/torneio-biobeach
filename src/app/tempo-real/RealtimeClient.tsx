@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { Expand, MapPin, Radio, Trophy } from "lucide-react";
 import { Brand } from "@/components/Brand";
@@ -100,8 +101,8 @@ export default function RealtimeClient() {
 
             <div className="flex flex-col gap-2 rounded-xl border border-white/10 bg-black/35 p-3 text-center">
               <div className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-500">Arena sede</div>
-              <div className="text-2xl font-black italic leading-none">
-                <span className="text-[#62ccb5]">Arena</span> <span className="text-[#f6ae3f]">360</span>
+              <div className="relative mx-auto h-12 w-44 overflow-hidden rounded-lg border border-lime-300/20 bg-black">
+                <Image src="/brand/arena-360-clean.png" alt="Arena 360" fill sizes="176px" className="object-contain p-2.5" />
               </div>
               <button
                 type="button"

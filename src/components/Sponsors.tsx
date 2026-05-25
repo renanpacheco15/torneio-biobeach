@@ -71,11 +71,11 @@ export function CourtSponsorBackdrop({ group, className }: { group: Group; class
         alt=""
         fill
         sizes="900px"
-        className="object-cover opacity-25 mix-blend-screen"
+        className="object-contain p-5 opacity-25 sm:p-6"
         style={{ objectPosition: sponsor.imagePosition ?? "center" }}
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/65 via-slate-950/15 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/35 via-transparent to-white/10" />
+      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/70 via-slate-950/20 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-white/10" />
     </div>
   );
 }
@@ -117,10 +117,10 @@ function CourtSponsorMini({ group, dark }: { group: Group; dark: boolean }) {
         alt=""
         fill
         sizes="160px"
-        className="object-cover opacity-30 mix-blend-screen"
+        className="object-contain p-2.5 opacity-[0.28]"
         style={{ objectPosition: sponsor.imagePosition ?? "center" }}
       />
-      <div className={cn("absolute inset-0", dark ? "bg-slate-950/35" : "bg-slate-950/25")} />
+      <div className={cn("absolute inset-0", dark ? "bg-slate-950/42" : "bg-slate-950/32")} />
       <div className="relative z-10 flex h-full flex-col justify-between">
         <div className="text-[10px] font-black uppercase text-white/80">Quadra {group.number}</div>
         <div className="truncate text-sm font-black uppercase tracking-normal">{group.shortName}</div>

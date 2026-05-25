@@ -12,8 +12,8 @@ export type CourtSponsor = Sponsor & {
 };
 
 export const ORGANIZER: Sponsor = {
-  name: "BIOBeach Beach Sports",
-  src: "/sponsors/biobeach.jpeg",
+  name: "BIOBEACH",
+  src: "/brand/biobeach-logo-white.png",
   role: "organizer",
 };
 
@@ -21,49 +21,49 @@ export const COURT_SPONSORS: Record<GroupId, CourtSponsor> = {
   G1: {
     groupId: "G1",
     name: "Colégio Omega",
-    src: "/sponsors/colegio-omega.jpeg",
+    src: "/sponsors/colegio-omega-clean.png",
     role: "court",
   },
   G2: {
     groupId: "G2",
     name: "Amaro Laboratório",
-    src: "/sponsors/amaro.jpeg",
+    src: "/sponsors/amaro-clean.png",
     role: "court",
   },
   G3: {
     groupId: "G3",
     name: "Tintas Santa Terezinha",
-    src: "/sponsors/tintas-santa-terezinha.jpeg",
+    src: "/sponsors/tintas-santa-terezinha-clean.png",
     role: "court",
   },
   G4: {
     groupId: "G4",
     name: "Sicoob Credisudeste",
-    src: "/sponsors/sicoob-creditosudeste.jpeg",
+    src: "/sponsors/sicoob-creditosudeste-clean.png",
     role: "court",
   },
   G5: {
     groupId: "G5",
     name: "Faminas",
-    src: "/sponsors/faminas.jpeg",
+    src: "/sponsors/faminas-clean.png",
     role: "court",
   },
   G6: {
     groupId: "G6",
     name: "Jerônimo Joias",
-    src: "/sponsors/jeronimo-joias.jpeg",
+    src: "/sponsors/jeronimo-joias-clean.png",
     role: "court",
   },
   G7: {
     groupId: "G7",
     name: "Óticas Jerônimo",
-    src: "/sponsors/oticas-jeronimo.jpeg",
+    src: "/sponsors/oticas-jeronimo-clean.png",
     role: "court",
   },
   G8: {
     groupId: "G8",
     name: "Dr. Hélcio Rabelo Jr.",
-    src: "/sponsors/dr-helcio-rabelo.jpeg",
+    src: "/sponsors/dr-helcio-rabelo-clean.png",
     role: "court",
   },
 };

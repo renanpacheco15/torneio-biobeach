@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { CourtSponsorBackdrop } from "@/components/Sponsors";
 import { OfficialHeader, PremiumFooter } from "@/components/OfficialChrome";
-import { getCourtStatusLabel } from "@/lib/courts";
+import { getCourtStatusLabel, isCourtPubliclyVisible } from "@/lib/courts";
 import { getCourtSponsor } from "@/lib/sponsors";
 import { GROUPS } from "@/lib/tournament/data";
 import { useTournamentStore } from "@/lib/tournament/store";
@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 
 export default function Home() {
   const { state } = useTournamentStore();
+  const visibleGroups = GROUPS.filter((group) => isCourtPubliclyVisible(state.settings.courtStatuses[`court-${group.number}`] ?? "active"));
 
   return (
     <main id="inicio" className="min-h-screen overflow-hidden bg-[#020403] text-white">
@@ -35,7 +36,7 @@ export default function Home() {
         </section>
 
         <section id="grupos" aria-label="Acesso aos grupos" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {GROUPS.map((group) => {
+          {visibleGroups.map((group) => {
             const status = state.settings.courtStatuses[`court-${group.number}`] ?? "active";
             return <CourtAccessCard key={group.id} group={group} status={status} />;
           })}

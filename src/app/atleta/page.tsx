@@ -7,6 +7,7 @@ import { CalendarClock, ChevronLeft, Clock3, Medal, Search, Trophy } from "lucid
 import { Brand } from "@/components/Brand";
 import { RankingTable } from "@/components/RankingTable";
 import { CourtSponsorBackdrop } from "@/components/Sponsors";
+import { isCourtPubliclyVisible } from "@/lib/courts";
 import { useTournamentStore } from "@/lib/tournament/store";
 import {
   calculateGroupRanking,
@@ -32,7 +33,8 @@ function AthletePageContent() {
   const [manualGroupId, setManualGroupId] = useState<GroupId | null>(null);
   const selectedGroupId = manualGroupId ?? requestedGroupId;
   const [query, setQuery] = useState("");
-  const selectedGroup = state.groups.find((group) => group.id === selectedGroupId) ?? state.groups[0];
+  const visibleGroups = state.groups.filter((group) => isCourtPubliclyVisible(state.settings.courtStatuses[`court-${group.number}`] ?? "active"));
+  const selectedGroup = visibleGroups.find((group) => group.id === selectedGroupId) ?? visibleGroups[0] ?? state.groups[0];
   const ranking = calculateGroupRanking(state, selectedGroup.id);
   const matches = getMatchesByGroup(state, selectedGroup.id);
   const normalizedQuery = normalizeText(query);
@@ -84,7 +86,7 @@ function AthletePageContent() {
               onChange={(event) => setManualGroupId(event.target.value as GroupId)}
               className="mt-1 h-12 w-full rounded-md border-2 border-white/10 bg-slate-950 px-3 font-black text-white outline-none focus:border-lime-300"
             >
-              {state.groups.map((group) => (
+              {visibleGroups.map((group) => (
                 <option key={group.id} value={group.id}>
                   Grupo {group.number} - {group.shortName}
                 </option>

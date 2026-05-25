@@ -256,9 +256,14 @@ function VersusBlock({ match }: { match: BracketViewMatch }) {
 
 function TeamLine({ name, score, active }: { name: string; score: number | string; active: boolean }) {
   return (
-    <div className={cn("grid grid-cols-[1fr_auto] items-center gap-3 rounded-lg border p-3", active ? "border-lime-300/70 bg-lime-300/15" : "border-white/10 bg-black/30")}>
-      <div className="min-w-0 text-xl font-black uppercase leading-snug text-white break-words">{name}</div>
-      <div className={cn("flex h-16 min-w-16 items-center justify-center rounded-md px-4 text-4xl font-black", active ? "bg-lime-300 text-slate-950" : "bg-white/10 text-white")}>
+    <div
+      className={cn(
+        "grid grid-cols-[1fr_auto] items-center gap-3 rounded-xl border p-4 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.03)]",
+        active ? "border-lime-300/80 bg-lime-300/18" : "border-white/15 bg-slate-950/78",
+      )}
+    >
+      <div className="min-w-0 break-words text-2xl font-black uppercase leading-tight text-white drop-shadow-[0_0_12px_rgba(255,255,255,0.10)]">{name}</div>
+      <div className={cn("flex h-16 min-w-16 items-center justify-center rounded-md px-4 text-4xl font-black", active ? "bg-lime-300 text-slate-950" : "bg-white/12 text-white")}>
         {score}
       </div>
     </div>
@@ -340,9 +345,9 @@ function FinalShowcase({ state, match, compact = false }: { state: TournamentSta
 
 function FinalTeam({ name, score, winner }: { name: string; score: number | string; winner: boolean }) {
   return (
-    <div className={cn("rounded-xl border p-4", winner ? "border-amber-300 bg-amber-300/15" : "border-white/10 bg-black/35")}>
+    <div className={cn("rounded-xl border p-4 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.03)]", winner ? "border-amber-300 bg-amber-300/15" : "border-white/15 bg-slate-950/80")}>
       <div className="text-xs font-black uppercase text-white/60">{winner ? "Vencedor" : "Finalista"}</div>
-      <div className="mt-2 text-2xl font-black uppercase leading-tight text-white break-words">{name}</div>
+      <div className="mt-2 break-words text-3xl font-black uppercase leading-tight text-white drop-shadow-[0_0_12px_rgba(255,255,255,0.12)]">{name}</div>
       <div className={cn("mt-4 flex h-24 items-center justify-center rounded-lg text-6xl font-black", winner ? "bg-amber-300 text-slate-950" : "bg-white/10 text-white")}>
         {score}
       </div>

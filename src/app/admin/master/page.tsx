@@ -34,7 +34,7 @@ import {
 } from "@/lib/tournament/calculations";
 import { getKnockoutMeta, getKnockoutStatusLabel, KNOCKOUT_STAGES } from "@/lib/tournament/knockout";
 import { useTournamentStore } from "@/lib/tournament/store";
-import type { CourtStatus, GroupId, KnockoutPhase, Pair, TournamentState } from "@/lib/tournament/types";
+import type { CourtStatus, GroupId, KnockoutPhase, MatchStatus, Pair, TournamentState } from "@/lib/tournament/types";
 import { formatDateTime } from "@/lib/utils";
 
 type AdminPanel = "resumo" | "quadras" | "jogos" | "ranking" | "mata" | "grupos" | "log";
@@ -221,6 +221,7 @@ function MasterAdminContent() {
                   onStart={actions.startKnockoutMatch}
                   onSave={actions.saveKnockoutScore}
                   onReopen={actions.reopenKnockoutMatch}
+                  onSetStatus={actions.setKnockoutMatchStatus}
                 />
               ))}
             </div>
@@ -292,6 +293,7 @@ function MasterAdminContent() {
                           onStart={actions.startMatch}
                           onSave={actions.saveGroupScore}
                           onReopen={actions.reopenMatch}
+                          onSetStatus={actions.setGroupMatchStatus}
                           dense
                         />
                       ))}
@@ -533,10 +535,10 @@ function CompactList({
               <div className="font-black uppercase text-slate-400">
                 Grupo {match.groupId.slice(1)} · Jogo {match.order}
               </div>
-              <div className="mt-1 grid grid-cols-[1fr_auto_1fr] gap-2 font-bold text-white">
-                <span>{getPairName(state, match.pairAId)}</span>
-                <span className="text-lime-300">{match.status === "finished" ? `${match.scoreA} x ${match.scoreB}` : "x"}</span>
-                <span className="text-right">{getPairName(state, match.pairBId)}</span>
+              <div className="mt-2 grid grid-cols-[1fr_auto_1fr] items-center gap-2 font-black text-white">
+                <span className="break-words rounded-md bg-slate-950/80 px-2 py-2 leading-tight">{getPairName(state, match.pairAId)}</span>
+                <span className="text-lime-300">{match.status === "finished" ? `${match.scoreA} x ${match.scoreB}` : "VS"}</span>
+                <span className="break-words rounded-md bg-slate-950/80 px-2 py-2 text-right leading-tight">{getPairName(state, match.pairBId)}</span>
               </div>
             </div>
           ))
@@ -589,12 +591,14 @@ function KnockoutAdminCard({
   onStart,
   onSave,
   onReopen,
+  onSetStatus,
 }: {
   match: ReturnType<typeof getBracketView>[number];
   state: TournamentState;
   onStart: (matchId: string) => void;
-  onSave: (matchId: string, scoreA: number | null, scoreB: number | null) => string | null;
+  onSave: (matchId: string, scoreA: number | null, scoreB: number | null, finish?: boolean) => string | null;
   onReopen: (matchId: string) => void;
+  onSetStatus: (matchId: string, status: MatchStatus) => void;
 }) {
   const [scoreA, setScoreA] = useState(match.scoreA?.toString() ?? "");
   const [scoreB, setScoreB] = useState(match.scoreB?.toString() ?? "");
@@ -623,6 +627,8 @@ function KnockoutAdminCard({
         </span>
       </div>
 
+      <AdminStatusControl status={match.status} onChange={(status) => onSetStatus(match.id, status)} />
+
       <div className="mt-3 grid gap-2">
         <KnockoutScoreLine
           label="Dupla 1"
@@ -646,21 +652,65 @@ function KnockoutAdminCard({
       {winner && <div className="mt-2 rounded-md border border-emerald-300/25 bg-emerald-400/10 px-3 py-2 text-xs font-black uppercase text-emerald-200">Vencedor: {winner.name}</div>}
       {error && <div className="mt-2 rounded-md border border-red-400/30 bg-red-500/10 px-3 py-2 text-xs font-bold text-red-100">{error}</div>}
 
-      <div className="mt-3 grid gap-2 sm:grid-cols-3">
+      <div className="mt-3 grid gap-2 sm:grid-cols-4">
         <button type="button" onClick={() => onStart(match.id)} className="h-12 rounded-md bg-amber-500 px-3 text-xs font-black uppercase text-white sm:h-10">
           Iniciar
         </button>
         <button
           type="button"
-          onClick={() => setError(onSave(match.id, parseScore(scoreA), parseScore(scoreB)))}
+          onClick={() => setError(onSave(match.id, parseScore(scoreA), parseScore(scoreB), false))}
           className="h-12 rounded-md bg-emerald-600 px-3 text-xs font-black uppercase text-white sm:h-10"
         >
           Salvar placar
+        </button>
+        <button
+          type="button"
+          onClick={() => setError(onSave(match.id, parseScore(scoreA), parseScore(scoreB), true))}
+          className="h-12 rounded-md bg-lime-300 px-3 text-xs font-black uppercase text-slate-950 sm:h-10"
+        >
+          Finalizar
         </button>
         <button type="button" onClick={() => onReopen(match.id)} className="h-12 rounded-md border border-white/10 bg-white/[0.04] px-3 text-xs font-black uppercase text-slate-100 sm:h-10">
           Corrigir
         </button>
       </div>
+    </div>
+  );
+}
+
+function AdminStatusControl({
+  status,
+  onChange,
+}: {
+  status: MatchStatus;
+  onChange: (status: MatchStatus) => void;
+}) {
+  const options: Array<{ value: MatchStatus; label: string }> = [
+    { value: "pending", label: "Pendente" },
+    { value: "live", label: "Em andamento" },
+    { value: "finished", label: "Finalizado" },
+  ];
+
+  return (
+    <div className="mt-3 grid grid-cols-3 gap-1.5 rounded-lg border border-white/10 bg-black/35 p-1.5">
+      {options.map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          onClick={() => onChange(option.value)}
+          className={`min-h-10 rounded-md px-2 text-[10px] font-black uppercase transition sm:text-xs ${
+            status === option.value
+              ? option.value === "live"
+                ? "bg-red-600 text-white"
+                : option.value === "finished"
+                  ? "bg-emerald-500 text-white"
+                  : "bg-lime-300 text-slate-950"
+              : "border border-white/10 bg-white/[0.04] text-slate-200 hover:border-lime-300/40"
+          }`}
+        >
+          {option.label}
+        </button>
+      ))}
     </div>
   );
 }
@@ -677,10 +727,10 @@ function KnockoutScoreLine({
   onChange: (value: string) => void;
 }) {
   return (
-    <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_5rem] items-center gap-2 rounded-lg border border-white/10 bg-slate-950/80 p-2 sm:grid-cols-[minmax(0,1fr)_6rem]">
+    <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_5rem] items-center gap-2 rounded-lg border border-white/15 bg-slate-950/90 p-3 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.03)] sm:grid-cols-[minmax(0,1fr)_6rem]">
       <div className="min-w-0">
         <div className="text-[10px] font-black uppercase text-slate-500">{label}</div>
-        <div className="mt-1 break-words text-sm font-black uppercase leading-tight text-white">{name}</div>
+        <div className="mt-1 break-words text-base font-black uppercase leading-tight text-white">{name}</div>
       </div>
       <input
         value={value}

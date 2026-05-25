@@ -19,21 +19,20 @@ const primaryNav = [
 
 function ArenaLogo({ mobile = false }: { mobile?: boolean }) {
   return (
-    <div
-      className={cn(
-        "relative flex items-center justify-center overflow-hidden rounded-lg border border-lime-300/25 bg-black shadow-[0_0_26px_rgba(132,204,22,0.14)]",
-        mobile ? "h-12 w-[9.5rem] min-[390px]:w-40" : "h-16 w-60",
-      )}
-    >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(132,204,22,0.16),transparent_64%)]" />
-      <Image
-        src="/brand/arena-360-clean.png"
-        alt="Arena 360"
-        fill
-        sizes={mobile ? "160px" : "240px"}
-        className={cn("relative z-10 object-contain", mobile ? "p-2.5" : "p-3")}
-        priority
-      />
+    <div className={cn("flex flex-col items-center justify-center", mobile ? "w-[6.8rem] min-[390px]:w-32" : "w-56")}>
+      <div className={cn("relative w-full", mobile ? "h-9 min-[390px]:h-10" : "h-14")}>
+        <Image
+          src="/brand/arena-360-clean.png"
+          alt="Arena 360"
+          fill
+          sizes={mobile ? "128px" : "224px"}
+          className="object-contain drop-shadow-[0_0_14px_rgba(132,204,22,0.16)]"
+          priority
+        />
+      </div>
+      <div className={cn("mt-0.5 font-black uppercase tracking-[0.24em] text-slate-500", mobile ? "text-[6px]" : "text-[8px]")}>
+        Arena sede
+      </div>
     </div>
   );
 }
@@ -66,20 +65,17 @@ export function OfficialHeader() {
         </nav>
 
         <div className="hidden items-center justify-end gap-3 xl:flex">
-          <div className="text-right">
-            <div className="mb-1 text-[10px] font-black uppercase tracking-[0.28em] text-slate-500">Arena sede</div>
-            <ArenaLogo />
-          </div>
+          <ArenaLogo />
         </div>
 
-        <div className="order-3 flex w-full justify-center xl:hidden">
+        <div className="order-2 ml-auto flex shrink-0 justify-end xl:hidden">
           <ArenaLogo mobile />
         </div>
 
         <button
           type="button"
           onClick={() => setOpen((current) => !current)}
-          className="order-2 inline-flex h-11 w-11 items-center justify-center rounded-md border border-lime-300/30 bg-lime-300/10 text-lime-200 sm:h-12 sm:w-12 xl:hidden"
+          className="order-3 inline-flex h-11 w-11 items-center justify-center rounded-md border border-lime-300/30 bg-lime-300/10 text-lime-200 sm:h-12 sm:w-12 xl:hidden"
           aria-label={open ? "Fechar menu" : "Abrir menu"}
         >
           {open ? <X className="h-6 w-6" aria-hidden="true" /> : <Menu className="h-6 w-6" aria-hidden="true" />}

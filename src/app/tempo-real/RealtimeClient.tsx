@@ -6,6 +6,7 @@ import { Expand, MapPin, Radio, Trophy } from "lucide-react";
 import { Brand } from "@/components/Brand";
 import { OfficialHeader } from "@/components/OfficialChrome";
 import { CourtSponsorBackdrop } from "@/components/Sponsors";
+import { isCourtPubliclyVisible } from "@/lib/courts";
 import { getCourtSponsor } from "@/lib/sponsors";
 import {
   calculateGroupRanking,
@@ -99,11 +100,11 @@ export default function RealtimeClient() {
               </p>
             </div>
 
-            <div className="flex flex-col gap-2 rounded-xl border border-white/10 bg-black/35 p-3 text-center">
-              <div className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-500">Arena sede</div>
-              <div className="relative mx-auto h-12 w-44 overflow-hidden rounded-lg border border-lime-300/20 bg-black">
-                <Image src="/brand/arena-360-clean.png" alt="Arena 360" fill sizes="176px" className="object-contain p-2.5" />
+            <div className="flex flex-col gap-2 rounded-xl border border-white/10 bg-black/25 p-3 text-center">
+              <div className="relative mx-auto h-12 w-44">
+                <Image src="/brand/arena-360-clean.png" alt="Arena 360" fill sizes="176px" className="object-contain drop-shadow-[0_0_14px_rgba(132,204,22,0.18)]" />
               </div>
+              <div className="text-[9px] font-black uppercase tracking-[0.22em] text-slate-500">Arena sede</div>
               <button
                 type="button"
                 onClick={handleFullScreen}
@@ -147,7 +148,14 @@ export default function RealtimeClient() {
 
 function GroupsPanel({ state, fullscreen = false }: { state: TournamentState; fullscreen?: boolean }) {
   const [groupBlock, setGroupBlock] = useState(0);
-  const blocks = useMemo(() => [state.groups.slice(0, 4), state.groups.slice(4, 8)], [state.groups]);
+  const publicGroups = useMemo(
+    () => state.groups.filter((group) => isCourtPubliclyVisible(state.settings.courtStatuses[`court-${group.number}`] ?? "active")),
+    [state.groups, state.settings.courtStatuses],
+  );
+  const blocks = useMemo(() => {
+    const nextBlocks = [publicGroups.slice(0, 4), publicGroups.slice(4, 8)].filter((block) => block.length > 0);
+    return nextBlocks.length > 0 ? nextBlocks : [[]];
+  }, [publicGroups]);
   const visibleGroups = blocks[groupBlock] ?? blocks[0];
 
   useEffect(() => {
@@ -189,6 +197,11 @@ function GroupsPanel({ state, fullscreen = false }: { state: TournamentState; fu
       )}
 
       <div className={cn("grid gap-3 md:grid-cols-2 xl:grid-cols-4", fullscreen && "h-full")}>
+        {visibleGroups.length === 0 && (
+          <div className="rounded-xl border border-white/10 bg-black/45 p-6 text-center text-lg font-black uppercase text-slate-300">
+            Nenhuma quadra ativa no momento.
+          </div>
+        )}
         {visibleGroups.map((group) => {
           const ranking = calculateGroupRanking(state, group.id);
           const matches = getMatchesByGroup(state, group.id);
@@ -429,8 +442,8 @@ function FinalRealtimeCard({ state, match }: { state: TournamentState; match?: B
 
 function ScoreLine({ name, score, winner }: { name: string; score: number | string; winner: boolean }) {
   return (
-    <div className={cn("grid grid-cols-[1fr_auto] items-center gap-3 rounded-xl border p-3", winner ? "border-lime-300/70 bg-lime-300/15" : "border-white/10 bg-black/35")}>
-      <div className="min-w-0 break-words text-xl font-black uppercase leading-tight text-white 2xl:text-2xl">{name}</div>
+    <div className={cn("grid grid-cols-[1fr_auto] items-center gap-3 rounded-xl border p-4 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.03)]", winner ? "border-lime-300/70 bg-lime-300/15" : "border-white/15 bg-slate-950/80")}>
+      <div className="min-w-0 break-words text-2xl font-black uppercase leading-tight text-white drop-shadow-[0_0_12px_rgba(255,255,255,0.12)] 2xl:text-3xl">{name}</div>
       <div className={cn("flex h-16 min-w-16 items-center justify-center rounded-md px-4 text-4xl font-black", winner ? "bg-lime-300 text-slate-950" : "bg-white/10 text-white")}>{score}</div>
     </div>
   );
@@ -438,9 +451,9 @@ function ScoreLine({ name, score, winner }: { name: string; score: number | stri
 
 function FinalTeamPanel({ name, score, winner }: { name: string; score: number | string; winner: boolean }) {
   return (
-    <div className={cn("rounded-xl border p-4", winner ? "border-amber-300 bg-amber-300/15" : "border-white/10 bg-black/35")}>
+    <div className={cn("rounded-xl border p-4 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.03)]", winner ? "border-amber-300 bg-amber-300/15" : "border-white/15 bg-slate-950/80")}>
       <div className="text-xs font-black uppercase text-white/60">{winner ? "Vencedor" : "Finalista"}</div>
-      <div className="mt-2 min-h-20 break-words text-3xl font-black uppercase leading-tight text-white xl:text-4xl">{name}</div>
+      <div className="mt-2 min-h-20 break-words text-4xl font-black uppercase leading-tight text-white drop-shadow-[0_0_12px_rgba(255,255,255,0.12)] xl:text-5xl">{name}</div>
       <div className={cn("mt-5 flex h-28 items-center justify-center rounded-lg text-7xl font-black", winner ? "bg-amber-300 text-slate-950" : "bg-white/10 text-white")}>{score}</div>
     </div>
   );

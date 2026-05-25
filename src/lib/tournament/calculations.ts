@@ -193,11 +193,11 @@ export function calculateOverallRanking(state: TournamentState): OverallRankedPa
       b.balance - a.balance ||
       b.pointsFor - a.pointsFor ||
       a.pointsAgainst - b.pointsAgainst ||
-      b.winRate - a.winRate;
+      b.played - a.played;
 
     if (numericCriteria !== 0) return numericCriteria;
 
-    return a.groupPosition - b.groupPosition || a.group.number - b.group.number || a.pair.seed - b.pair.seed;
+    return a.group.number - b.group.number || a.pair.seed - b.pair.seed;
   });
 
   return ranking.map((row, index) => ({

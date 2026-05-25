@@ -10,9 +10,10 @@ type SponsorRibbonProps = {
   className?: string;
   dark?: boolean;
   title?: string;
+  groups?: Group[];
 };
 
-export function SponsorRibbon({ className, dark = false, title = "Quadras oficiais" }: SponsorRibbonProps) {
+export function SponsorRibbon({ className, dark = false, title = "Quadras oficiais", groups = GROUPS }: SponsorRibbonProps) {
   return (
     <section
       className={cn(
@@ -27,7 +28,7 @@ export function SponsorRibbon({ className, dark = false, title = "Quadras oficia
           {title}
         </div>
         <div className="grid flex-1 grid-cols-2 gap-2 md:grid-cols-4 xl:grid-cols-8">
-          {GROUPS.map((group) => (
+          {groups.map((group) => (
             <CourtSponsorMini key={group.id} group={group} dark={dark} />
           ))}
         </div>

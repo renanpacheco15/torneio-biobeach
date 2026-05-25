@@ -52,3 +52,7 @@ export function getCourtStatusLabel(status: CourtStatus): string {
   if (status === "unavailable") return "Indisponível";
   return "Desativada";
 }
+
+export function isCourtPubliclyVisible(status: CourtStatus | undefined): boolean {
+  return status === "active";
+}

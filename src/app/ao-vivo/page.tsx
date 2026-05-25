@@ -4,12 +4,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { Radio, Video } from "lucide-react";
 import { OfficialHeader, PremiumFooter } from "@/components/OfficialChrome";
-import { COURTS, getCourtStatusLabel } from "@/lib/courts";
+import { COURTS, getCourtStatusLabel, isCourtPubliclyVisible } from "@/lib/courts";
 import { useTournamentStore } from "@/lib/tournament/store";
 import { cn } from "@/lib/utils";
 
 export default function LiveStreamsPage() {
   const { state } = useTournamentStore();
+  const visibleCourts = COURTS.filter((court) =>
+    isCourtPubliclyVisible(state.settings.courtStatuses[court.id] ?? (court.reserve ? "disabled" : "active")),
+  );
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#020403] text-white">
@@ -31,7 +34,7 @@ export default function LiveStreamsPage() {
         </section>
 
         <section aria-label="Transmissões por quadra" className="grid gap-3">
-          {COURTS.map((court) => {
+          {visibleCourts.map((court) => {
             const status = state.settings.courtStatuses[court.id] ?? (court.reserve ? "disabled" : "active");
             const streamUrl = state.settings.liveStreams[court.id]?.trim() ?? "";
             const isActive = status === "active";

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Activity, Crown, Maximize2, Medal, Radio, Trophy } from "lucide-react";
 import { Brand } from "@/components/Brand";
 import { CourtSponsorBackdrop, SponsorRibbon } from "@/components/Sponsors";
+import { isCourtPubliclyVisible } from "@/lib/courts";
 import {
   calculateGroupRanking,
   getBracketView,
@@ -20,8 +21,9 @@ import { cn } from "@/lib/utils";
 export default function ScreenPage() {
   const { state } = useTournamentStore();
   const [index, setIndex] = useState(0);
+  const visibleGroups = state.groups.filter((item) => isCourtPubliclyVisible(state.settings.courtStatuses[`court-${item.number}`] ?? "active"));
   const progress = getTournamentProgress(state);
-  const group = state.groups[index % state.groups.length] ?? state.groups[0];
+  const group = visibleGroups[index % Math.max(visibleGroups.length, 1)] ?? state.groups[0];
   const ranking = useMemo(() => calculateGroupRanking(state, group.id), [state, group.id]);
   const matches = getMatchesByGroup(state, group.id);
   const recent = getRecentResults(state, 4);
@@ -43,7 +45,7 @@ export default function ScreenPage() {
     }, 10000);
 
     return () => window.clearInterval(timer);
-  }, [state.groups.length]);
+  }, [state.groups.length, visibleGroups.length]);
 
   return (
     <main className="min-h-screen bg-slate-950 p-4 text-white screen-grid">
@@ -147,7 +149,7 @@ export default function ScreenPage() {
           </aside>
         </section>
 
-        <SponsorRibbon className="mx-5 mb-5" dark />
+        <SponsorRibbon className="mx-5 mb-5" dark groups={visibleGroups} />
       </div>
     </main>
   );

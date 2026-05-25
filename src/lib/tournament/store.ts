@@ -169,7 +169,27 @@ export function useTournamentStore() {
         );
       },
 
-      saveGroupScore(matchId: string, scoreA: number | null, scoreB: number | null, actor: "admin" | "mesario") {
+      setGroupMatchStatus(matchId: string, status: "pending" | "live" | "finished", actor: "admin" | "mesario") {
+        commit(
+          (previous) => ({
+            ...previous,
+            groupMatches: previous.groupMatches.map((match) =>
+              match.id === matchId
+                ? {
+                    ...match,
+                    status,
+                    startedAt: status === "live" ? (match.startedAt ?? new Date().toISOString()) : match.startedAt,
+                    finishedAt: status === "finished" ? (match.finishedAt ?? new Date().toISOString()) : undefined,
+                    updatedAt: new Date().toISOString(),
+                  }
+                : match,
+            ),
+          }),
+          createLog(actor, `Status do jogo ${matchId} alterado para ${status}.`),
+        );
+      },
+
+      saveGroupScore(matchId: string, scoreA: number | null, scoreB: number | null, actor: "admin" | "mesario", finish = true) {
         const validation = validateScore(scoreA, scoreB);
         if (validation) return validation;
 
@@ -187,8 +207,8 @@ export function useTournamentStore() {
                     ...item,
                     scoreA,
                     scoreB,
-                    status: "finished",
-                    finishedAt: new Date().toISOString(),
+                    status: finish ? "finished" : item.status === "pending" ? "live" : item.status,
+                    finishedAt: finish ? new Date().toISOString() : item.finishedAt,
                     updatedAt: new Date().toISOString(),
                   }
                 : item,
@@ -237,7 +257,26 @@ export function useTournamentStore() {
         );
       },
 
-      saveKnockoutScore(matchId: string, scoreA: number | null, scoreB: number | null) {
+      setKnockoutMatchStatus(matchId: string, status: "pending" | "live" | "finished") {
+        commit(
+          (previous) => ({
+            ...previous,
+            knockoutMatches: previous.knockoutMatches.map((match) =>
+              match.id === matchId
+                ? {
+                    ...match,
+                    status,
+                    winnerId: status === "finished" ? match.winnerId : undefined,
+                    updatedAt: new Date().toISOString(),
+                  }
+                : match,
+            ),
+          }),
+          createLog("admin", `Status do mata-mata ${matchId} alterado para ${status}.`),
+        );
+      },
+
+      saveKnockoutScore(matchId: string, scoreA: number | null, scoreB: number | null, finish = true) {
         const validation = validateScore(scoreA, scoreB);
         if (validation) return validation;
 
@@ -261,8 +300,8 @@ export function useTournamentStore() {
                   pairBId,
                   scoreA,
                   scoreB,
-                  status: "finished",
-                  winnerId,
+                  status: finish ? "finished" : match.status === "pending" ? "live" : match.status,
+                  winnerId: finish || match.status === "finished" ? winnerId : undefined,
                   updatedAt: new Date().toISOString(),
                 }
               : match,

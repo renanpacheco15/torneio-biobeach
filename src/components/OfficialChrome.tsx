@@ -13,6 +13,7 @@ const primaryNav = [
   { label: "TABELA", href: "/tabela" },
   { label: "RANKING", href: "/geral" },
   { label: "AO VIVO", href: "/ao-vivo", live: true },
+  { label: "TEMPO REAL", mobileLabel: "ACOMPANHE EM TEMPO REAL", href: "/tempo-real" },
   { label: "ADMIN", href: "/admin", muted: true },
 ];
 
@@ -52,12 +53,12 @@ export function OfficialHeader() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-black/90 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:px-8">
-        <Link href="/" aria-label="Ir para o início" className="order-1 w-fit min-w-0 lg:order-none">
+      <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8 xl:grid xl:grid-cols-[1fr_auto_1fr]">
+        <Link href="/" aria-label="Ir para o início" className="order-1 w-fit min-w-0 xl:order-none">
           <Brand dark />
         </Link>
 
-        <nav className="hidden items-center gap-1 rounded-full border border-white/10 bg-white/[0.045] p-1 lg:flex">
+        <nav className="hidden items-center gap-1 rounded-full border border-white/10 bg-white/[0.045] p-1 xl:flex">
           {primaryNav.map((item) => (
             <Link
               key={item.href}
@@ -74,21 +75,21 @@ export function OfficialHeader() {
           ))}
         </nav>
 
-        <div className="hidden items-center justify-end gap-3 lg:flex">
+        <div className="hidden items-center justify-end gap-3 xl:flex">
           <div className="text-right">
             <div className="mb-1 text-[10px] font-black uppercase tracking-[0.28em] text-slate-500">Arena sede</div>
             <ArenaLogo />
           </div>
         </div>
 
-        <div className="order-3 flex w-full justify-center lg:hidden">
+        <div className="order-3 flex w-full justify-center xl:hidden">
           <ArenaLogo mobile />
         </div>
 
         <button
           type="button"
           onClick={() => setOpen((current) => !current)}
-          className="order-2 inline-flex h-11 w-11 items-center justify-center rounded-md border border-lime-300/30 bg-lime-300/10 text-lime-200 sm:h-12 sm:w-12 lg:hidden"
+          className="order-2 inline-flex h-11 w-11 items-center justify-center rounded-md border border-lime-300/30 bg-lime-300/10 text-lime-200 sm:h-12 sm:w-12 xl:hidden"
           aria-label={open ? "Fechar menu" : "Abrir menu"}
         >
           {open ? <X className="h-6 w-6" aria-hidden="true" /> : <Menu className="h-6 w-6" aria-hidden="true" />}
@@ -96,7 +97,7 @@ export function OfficialHeader() {
       </div>
 
       {open && (
-        <div className="border-t border-white/10 bg-black px-4 py-3 lg:hidden">
+        <div className="border-t border-white/10 bg-black px-4 py-3 xl:hidden">
           <div className="mx-auto grid max-w-[1440px] gap-2">
             {primaryNav.map((item) => (
               <Link
@@ -111,7 +112,7 @@ export function OfficialHeader() {
               >
                 <span className="inline-flex items-center gap-2">
                   {item.live && <span className="h-2.5 w-2.5 rounded-full bg-red-500 shadow-[0_0_14px_rgba(239,68,68,0.9)]" aria-hidden="true" />}
-                  {item.label}
+                  {item.mobileLabel ?? item.label}
                 </span>
                 {item.muted && <ShieldCheck className="h-4 w-4" aria-hidden="true" />}
               </Link>

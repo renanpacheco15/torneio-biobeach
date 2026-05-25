@@ -186,12 +186,12 @@ function MasterAdminContent() {
           <OverallRankingTable ranking={overallRanking} />
         </section>
 
-        <section className="rounded-xl border border-white/10 bg-white/[0.055] p-4 shadow-[0_0_34px_rgba(132,204,22,0.08)] backdrop-blur">
+        <section className="min-w-0 rounded-xl border border-white/10 bg-white/[0.055] p-3 shadow-[0_0_34px_rgba(132,204,22,0.08)] backdrop-blur sm:p-4">
           <div className="mb-3 flex items-center gap-2">
             <Trophy className="h-5 w-5 text-amber-500" aria-hidden="true" />
             <h2 className="text-xl font-black uppercase tracking-normal text-white">Mata-mata oficial</h2>
           </div>
-          <div className="grid gap-3 lg:grid-cols-2">
+          <div className="grid min-w-0 gap-3 xl:grid-cols-2">
             {bracket.map((match) => (
               <KnockoutAdminCard
                 key={`${match.id}-${match.status}-${match.scoreA ?? "a"}-${match.scoreB ?? "b"}-${match.winnerId ?? "none"}`}
@@ -470,38 +470,36 @@ function KnockoutAdminCard({
   };
 
   return (
-    <div className="rounded-lg border border-white/10 bg-black/35 p-3">
+    <div className="min-w-0 overflow-hidden rounded-xl border border-white/10 bg-black/40 p-3 shadow-[0_0_24px_rgba(255,255,255,0.04)] sm:p-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <div className="text-xs font-black uppercase text-slate-400">
-            {stage.shortTitle} · {meta.code} · {courtGroup?.court ?? "Quadra"}
+        <div className="min-w-0">
+          <div className="break-words text-xs font-black uppercase leading-snug text-slate-400">
+            {stage.shortTitle} · {meta.code}
           </div>
-          <div className="mt-2 grid gap-1 text-sm font-black text-white">
-            <span>{match.resolvedPairA?.name ?? match.labelA}</span>
-            <span className="text-xs uppercase text-lime-300">x</span>
-            <span>{match.resolvedPairB?.name ?? match.labelB}</span>
-          </div>
+          <div className="mt-1 break-words text-[11px] font-black uppercase text-lime-300">{courtGroup?.court ?? "Quadra"}</div>
         </div>
-        <span className="inline-flex w-fit rounded-md bg-lime-300 px-2.5 py-1 text-xs font-black uppercase text-slate-950">
+        <span className="inline-flex w-fit shrink-0 rounded-md bg-lime-300 px-2.5 py-1 text-xs font-black uppercase text-slate-950">
           {getKnockoutStatusLabel(match.status)}
         </span>
       </div>
 
-      <div className="mt-3 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-        <input
+      <div className="mt-3 grid gap-2">
+        <KnockoutScoreLine
+          label="Dupla 1"
+          name={match.resolvedPairA?.name ?? match.labelA}
           value={scoreA}
-          onChange={(event) => setScoreA(event.target.value)}
-          inputMode="numeric"
-          className="h-12 rounded-md border border-white/10 bg-slate-950 px-3 text-center text-xl font-black text-white outline-none focus:border-lime-300"
-          placeholder="0"
+          onChange={setScoreA}
         />
-        <span className="text-lg font-black uppercase text-lime-300">x</span>
-        <input
+        <div className="flex items-center gap-3 py-1">
+          <div className="h-px flex-1 bg-white/10" />
+          <span className="text-sm font-black uppercase text-lime-300">x</span>
+          <div className="h-px flex-1 bg-white/10" />
+        </div>
+        <KnockoutScoreLine
+          label="Dupla 2"
+          name={match.resolvedPairB?.name ?? match.labelB}
           value={scoreB}
-          onChange={(event) => setScoreB(event.target.value)}
-          inputMode="numeric"
-          className="h-12 rounded-md border border-white/10 bg-slate-950 px-3 text-center text-xl font-black text-white outline-none focus:border-lime-300"
-          placeholder="0"
+          onChange={setScoreB}
         />
       </div>
 
@@ -509,20 +507,48 @@ function KnockoutAdminCard({
       {error && <div className="mt-2 rounded-md border border-red-400/30 bg-red-500/10 px-3 py-2 text-xs font-bold text-red-100">{error}</div>}
 
       <div className="mt-3 grid gap-2 sm:grid-cols-3">
-        <button type="button" onClick={() => onStart(match.id)} className="h-10 rounded-md bg-amber-500 px-3 text-xs font-black uppercase text-white">
+        <button type="button" onClick={() => onStart(match.id)} className="h-12 rounded-md bg-amber-500 px-3 text-xs font-black uppercase text-white sm:h-10">
           Iniciar
         </button>
         <button
           type="button"
           onClick={() => setError(onSave(match.id, parseScore(scoreA), parseScore(scoreB)))}
-          className="h-10 rounded-md bg-emerald-600 px-3 text-xs font-black uppercase text-white"
+          className="h-12 rounded-md bg-emerald-600 px-3 text-xs font-black uppercase text-white sm:h-10"
         >
           Salvar placar
         </button>
-        <button type="button" onClick={() => onReopen(match.id)} className="h-10 rounded-md border border-white/10 bg-white/[0.04] px-3 text-xs font-black uppercase text-slate-100">
+        <button type="button" onClick={() => onReopen(match.id)} className="h-12 rounded-md border border-white/10 bg-white/[0.04] px-3 text-xs font-black uppercase text-slate-100 sm:h-10">
           Corrigir
         </button>
       </div>
+    </div>
+  );
+}
+
+function KnockoutScoreLine({
+  label,
+  name,
+  value,
+  onChange,
+}: {
+  label: string;
+  name: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_5rem] items-center gap-2 rounded-lg border border-white/10 bg-slate-950/80 p-2 sm:grid-cols-[minmax(0,1fr)_6rem]">
+      <div className="min-w-0">
+        <div className="text-[10px] font-black uppercase text-slate-500">{label}</div>
+        <div className="mt-1 break-words text-sm font-black uppercase leading-tight text-white">{name}</div>
+      </div>
+      <input
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        inputMode="numeric"
+        className="h-14 w-full rounded-md border border-white/10 bg-black px-2 text-center text-2xl font-black text-white outline-none focus:border-lime-300 sm:h-12 sm:text-xl"
+        placeholder="0"
+      />
     </div>
   );
 }

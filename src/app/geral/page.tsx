@@ -27,7 +27,7 @@ export default function OverallRankingPage() {
               </div>
               <h1 className="mt-2 text-4xl font-black uppercase tracking-normal lg:text-5xl">Classificação geral</h1>
               <p className="mt-2 text-sm font-bold text-slate-300">
-                Ranking das 40 duplas por vitórias, saldo, pontos feitos e pontos sofridos.
+                Ranking das 45 duplas por vitórias, saldo, pontos feitos e pontos sofridos.
               </p>
             </div>
 

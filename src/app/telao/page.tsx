@@ -41,11 +41,11 @@ export default function ScreenPage() {
 
   useEffect(() => {
     const timer = window.setInterval(() => {
-      setIndex((current) => (current + 1) % Math.max(state.groups.length, 1));
+      setIndex((current) => (current + 1) % Math.max(visibleGroups.length, 1));
     }, 10000);
 
     return () => window.clearInterval(timer);
-  }, [state.groups.length, visibleGroups.length]);
+  }, [visibleGroups.length]);
 
   return (
     <main className="min-h-screen bg-slate-950 p-4 text-white screen-grid">

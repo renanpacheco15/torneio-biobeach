@@ -29,24 +29,26 @@ import {
   getPairName,
   getQualifiedPairs,
   getRecentResults,
+  getSecondPlaceRanking,
   getTournamentProgress,
   getUpcomingMatches,
 } from "@/lib/tournament/calculations";
 import { getKnockoutMeta, getKnockoutStatusLabel, KNOCKOUT_STAGES } from "@/lib/tournament/knockout";
 import { useTournamentStore } from "@/lib/tournament/store";
-import type { CourtStatus, GroupId, KnockoutPhase, MatchStatus, Pair, TournamentState } from "@/lib/tournament/types";
+import type { CourtStatus, GroupId, KnockoutPhase, MatchStatus, OverallManualDecision, Pair, TournamentState } from "@/lib/tournament/types";
 import { formatDateTime } from "@/lib/utils";
 
-type AdminPanel = "resumo" | "quadras" | "jogos" | "ranking" | "mata" | "grupos" | "log";
+type AdminPanel = "resumo" | "quadras" | "jogos" | "ranking" | "mata" | "grupos" | "regulamento" | "log";
 type KnockoutFilter = "all" | KnockoutPhase;
 
 const adminPanels: Array<{ id: AdminPanel; label: string; description: string }> = [
   { id: "resumo", label: "Resumo", description: "Visão rápida" },
   { id: "quadras", label: "Quadras", description: "Status e lives" },
   { id: "jogos", label: "Jogos", description: "Ao vivo e próximos" },
-  { id: "ranking", label: "Rank geral", description: "40 duplas" },
+  { id: "ranking", label: "Rank geral", description: "45 duplas" },
   { id: "mata", label: "Mata-mata", description: "Tabela final" },
   { id: "grupos", label: "Grupos", description: "Editar e corrigir" },
+  { id: "regulamento", label: "Regulamento", description: "Texto oficial" },
   { id: "log", label: "Log", description: "Alterações" },
 ];
 
@@ -81,6 +83,7 @@ function MasterAdminContent() {
   const visibleBracket = activeKnockoutPhase === "all" ? bracket : bracket.filter((match) => match.phase === activeKnockoutPhase);
   const visibleGroups = activeGroupId === "all" ? state.groups : state.groups.filter((group) => group.id === activeGroupId);
   const overallRanking = calculateOverallRanking(state);
+  const secondPlaceRanking = getSecondPlaceRanking(state);
 
   const exportBackup = () => {
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
@@ -197,9 +200,12 @@ function MasterAdminContent() {
           <section className="rounded-xl border border-white/10 bg-white/[0.055] p-4 shadow-[0_0_34px_rgba(132,204,22,0.08)] backdrop-blur">
             <div className="mb-3 flex items-center gap-2">
               <Trophy className="h-5 w-5 text-amber-500" aria-hidden="true" />
-              <h2 className="text-xl font-black uppercase tracking-normal text-white">Classificação geral das 40 duplas</h2>
+              <h2 className="text-xl font-black uppercase tracking-normal text-white">Classificação geral das 45 duplas</h2>
             </div>
-            <OverallRankingTable ranking={overallRanking} />
+            <ManualOverallControl rows={secondPlaceRanking} actions={actions} />
+            <div className="mt-4">
+              <OverallRankingTable ranking={overallRanking} />
+            </div>
           </section>
         )}
 
@@ -305,6 +311,8 @@ function MasterAdminContent() {
           </section>
         )}
 
+        {activePanel === "regulamento" && <RegulationEditor state={state} actions={actions} />}
+
         {activePanel === "log" && <LogPanel state={state} />}
       </div>
     </main>
@@ -362,6 +370,141 @@ function QualifiedPanel({ qualified, state }: { qualified: ReturnType<typeof get
         })}
       </div>
     </div>
+  );
+}
+
+function ManualOverallControl({
+  rows,
+  actions,
+}: {
+  rows: ReturnType<typeof getSecondPlaceRanking>;
+  actions: ReturnType<typeof useTournamentStore>["actions"];
+}) {
+  const setDecision = (pairId: string, decision: OverallManualDecision | null) => actions.setManualOverallDecision(pairId, decision);
+
+  return (
+    <div className="rounded-xl border border-amber-300/20 bg-amber-300/10 p-4 shadow-[0_0_34px_rgba(245,197,66,0.08)] backdrop-blur">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <div className="text-xs font-black uppercase text-amber-200">Critério dos melhores segundos</div>
+          <h2 className="mt-1 text-xl font-black uppercase text-white">7 melhores segundos entram no mata-mata</h2>
+          <p className="mt-1 text-sm font-bold text-slate-300">Use os botões para resolver empates e travar decisão manual quando a organização precisar.</p>
+        </div>
+        <button
+          type="button"
+          onClick={actions.clearManualOverallRanking}
+          className="h-11 rounded-md border border-white/10 bg-black/35 px-4 text-xs font-black uppercase text-slate-100"
+        >
+          Limpar decisão geral
+        </button>
+      </div>
+
+      <div className="mt-4 grid gap-2">
+        {rows.map((row, index) => {
+          const inside = row.manualDecision === "classified" || (row.manualDecision !== "eliminated" && index < 7);
+
+          return (
+            <div key={row.pair.id} className="grid gap-3 rounded-lg border border-white/10 bg-black/35 p-3 lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-center">
+              <div className={`flex h-11 w-11 items-center justify-center rounded-md text-lg font-black ${inside ? "bg-lime-300 text-slate-950" : "bg-white/10 text-white"}`}>
+                {index + 1}
+              </div>
+              <div className="min-w-0">
+                <div className="break-words text-sm font-black uppercase text-white">{row.pair.name}</div>
+                <div className="mt-1 flex flex-wrap gap-1.5 text-[10px] font-black uppercase">
+                  <span className={`rounded-md bg-gradient-to-r ${row.group.theme.gradient} px-2 py-1 text-white`}>Grupo {row.group.number}</span>
+                  <span className="rounded-md bg-white/10 px-2 py-1 text-slate-300">
+                    V {row.wins} · S {row.balance > 0 ? "+" : ""}{row.balance} · PF {row.pointsFor} · PC {row.pointsAgainst}
+                  </span>
+                  <span className={`rounded-md px-2 py-1 ${inside ? "bg-lime-300 text-slate-950" : "bg-red-500/20 text-red-100"}`}>
+                    {inside ? "Classificando" : "Fora"}
+                  </span>
+                </div>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-[auto_auto_auto_auto_auto]">
+                <RankButton label="Subir" onClick={() => actions.moveManualOverallSecond(row.pair.id, -1)} icon="up" />
+                <RankButton label="Descer" onClick={() => actions.moveManualOverallSecond(row.pair.id, 1)} icon="down" />
+                <DecisionButton label="Classificar" active={row.manualDecision === "classified"} onClick={() => setDecision(row.pair.id, "classified")} />
+                <DecisionButton label="Eliminar" active={row.manualDecision === "eliminated"} onClick={() => setDecision(row.pair.id, "eliminated")} />
+                <DecisionButton label="Auto" active={!row.manualDecision} onClick={() => setDecision(row.pair.id, null)} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function DecisionButton({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`h-9 rounded-md border px-3 text-[10px] font-black uppercase ${
+        active ? "border-lime-300 bg-lime-300 text-slate-950" : "border-white/10 bg-white/[0.045] text-slate-100"
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
+function RegulationEditor({
+  state,
+  actions,
+}: {
+  state: TournamentState;
+  actions: ReturnType<typeof useTournamentStore>["actions"];
+}) {
+  const [title, setTitle] = useState(state.regulation.title);
+  const [subtitle, setSubtitle] = useState(state.regulation.subtitle);
+  const [body, setBody] = useState(state.regulation.body);
+
+  return (
+    <section className="rounded-xl border border-white/10 bg-white/[0.055] p-4 shadow-[0_0_34px_rgba(132,204,22,0.08)] backdrop-blur">
+      <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <h2 className="text-xl font-black uppercase tracking-normal text-white">Regulamento público</h2>
+          <p className="mt-1 text-sm font-bold text-slate-400">Texto exibido na rota /regulamento e incluído no backup.</p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => actions.updateRegulation(title, subtitle, body)}
+            className="h-11 rounded-md bg-lime-300 px-4 text-xs font-black uppercase text-slate-950"
+          >
+            Salvar
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              if (!window.confirm("Restaurar o regulamento padrão?")) return;
+              actions.resetRegulation();
+              setTitle(state.regulation.title);
+              setSubtitle(state.regulation.subtitle);
+              setBody(state.regulation.body);
+            }}
+            className="h-11 rounded-md border border-white/10 bg-white/[0.04] px-4 text-xs font-black uppercase text-slate-100"
+          >
+            Restaurar
+          </button>
+        </div>
+      </div>
+      <div className="grid gap-3">
+        <label className="grid gap-1">
+          <span className="text-xs font-black uppercase text-slate-400">Título</span>
+          <input value={title} onChange={(event) => setTitle(event.target.value)} className="h-11 rounded-md border border-white/10 bg-slate-950 px-3 font-bold text-white outline-none focus:border-lime-300" />
+        </label>
+        <label className="grid gap-1">
+          <span className="text-xs font-black uppercase text-slate-400">Subtítulo</span>
+          <input value={subtitle} onChange={(event) => setSubtitle(event.target.value)} className="h-11 rounded-md border border-white/10 bg-slate-950 px-3 font-bold text-white outline-none focus:border-lime-300" />
+        </label>
+        <label className="grid gap-1">
+          <span className="text-xs font-black uppercase text-slate-400">Texto</span>
+          <textarea value={body} onChange={(event) => setBody(event.target.value)} rows={18} className="rounded-md border border-white/10 bg-slate-950 px-3 py-3 font-mono text-sm text-white outline-none focus:border-lime-300" />
+        </label>
+      </div>
+    </section>
   );
 }
 
@@ -466,14 +609,14 @@ function CourtManagement({
 
       <div className="grid gap-3 lg:grid-cols-3">
         {COURTS.map((court) => {
-          const status = state.settings.courtStatuses[court.id] ?? "disabled";
+          const status = state.settings.courtStatuses[court.id] ?? "active";
           const streamUrl = state.settings.liveStreams[court.id] ?? "";
 
           return (
             <div key={court.id} className="rounded-lg border border-white/10 bg-black/35 p-3">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <div className="text-xs font-black uppercase text-slate-400">{court.reserve ? "Reserva" : "Torneio"}</div>
+                  <div className="text-xs font-black uppercase text-slate-400">Torneio</div>
                   <div className="mt-1 text-lg font-black uppercase text-white">{court.label}</div>
                   <div className="text-xs font-bold uppercase text-slate-400">{court.sponsor}</div>
                 </div>

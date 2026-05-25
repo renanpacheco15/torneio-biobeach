@@ -40,6 +40,9 @@ export function OverallRankingTable({ ranking, compact = false }: OverallRanking
                   <span className="rounded-md bg-white/10 px-2 py-0.5 text-[10px] font-black uppercase text-slate-300">
                     {row.groupPosition}º no grupo
                   </span>
+                  <span className={cn("rounded-md px-2 py-0.5 text-[10px] font-black uppercase", row.classifying ? "bg-emerald-500 text-white" : "bg-white/10 text-slate-300")}>
+                    {row.overallStatusLabel}
+                  </span>
                 </div>
               </div>
             </div>
@@ -131,11 +134,11 @@ export function OverallRankingTable({ ranking, compact = false }: OverallRanking
                       {row.classifying ? (
                         <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-500 px-2.5 py-1 text-xs font-black uppercase text-white">
                           <Medal className="h-3.5 w-3.5" aria-hidden="true" />
-                          Classifica no grupo
+                          {row.overallStatusLabel}
                         </span>
                       ) : (
                         <span className="rounded-md bg-white/10 px-2.5 py-1 text-xs font-black uppercase text-slate-300">
-                          Na disputa
+                          {row.overallStatusLabel}
                         </span>
                       )}
                     </td>

@@ -10,9 +10,7 @@ import { cn } from "@/lib/utils";
 
 export default function LiveStreamsPage() {
   const { state } = useTournamentStore();
-  const visibleCourts = COURTS.filter((court) =>
-    isCourtPubliclyVisible(state.settings.courtStatuses[court.id] ?? (court.reserve ? "disabled" : "active")),
-  );
+  const visibleCourts = COURTS.filter((court) => isCourtPubliclyVisible(state.settings.courtStatuses[court.id] ?? "active"));
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#020403] text-white">
@@ -35,7 +33,7 @@ export default function LiveStreamsPage() {
 
         <section aria-label="Transmissões por quadra" className="grid gap-3">
           {visibleCourts.map((court) => {
-            const status = state.settings.courtStatuses[court.id] ?? (court.reserve ? "disabled" : "active");
+            const status = state.settings.courtStatuses[court.id] ?? "active";
             const streamUrl = state.settings.liveStreams[court.id]?.trim() ?? "";
             const isActive = status === "active";
             const canWatch = isActive && Boolean(streamUrl);
@@ -104,7 +102,7 @@ export default function LiveStreamsPage() {
                       </Link>
                     ) : (
                       <div className="flex h-12 w-full items-center justify-center rounded-md border border-white/20 bg-black/35 px-3 text-center text-xs font-black uppercase text-white">
-                        {isActive ? "Transmissão em breve" : court.reserve ? "Reserva / desativada" : "Quadra indisponível"}
+                        {isActive ? "Transmissão em breve" : "Quadra indisponível"}
                       </div>
                     )}
                   </div>

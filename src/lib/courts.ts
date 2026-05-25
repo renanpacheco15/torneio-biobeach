@@ -8,7 +8,6 @@ export type CourtDefinition = {
   groupNumber?: number;
   color: string;
   logo?: string;
-  reserve?: boolean;
 };
 
 export const COURTS: CourtDefinition[] = [
@@ -20,21 +19,13 @@ export const COURTS: CourtDefinition[] = [
   { id: "court-6", number: 6, label: "Quadra 6", sponsor: "Jerônimo Joias", groupNumber: 6, color: "from-zinc-900 via-zinc-700 to-zinc-400", logo: "/sponsors/jeronimo-joias-clean.png" },
   { id: "court-7", number: 7, label: "Quadra 7", sponsor: "Óticas Jerônimo", groupNumber: 7, color: "from-gray-950 via-red-950 to-rose-700", logo: "/sponsors/oticas-jeronimo-clean.png" },
   { id: "court-8", number: 8, label: "Quadra 8", sponsor: "Dr. Hélcio", groupNumber: 8, color: "from-yellow-900 via-amber-600 to-yellow-300", logo: "/sponsors/dr-helcio-rabelo-clean.png" },
-  {
-    id: "court-9",
-    number: 9,
-    label: "Quadra 9 Livre",
-    sponsor: "Livre",
-    color: "from-blue-800 via-blue-600 to-sky-400",
-    logo: "/logos/quadra-9-livre.svg",
-    reserve: true,
-  },
+  { id: "court-9", number: 9, label: "Quadra 9", sponsor: "Livre", groupNumber: 9, color: "from-blue-800 via-blue-600 to-sky-400", logo: "/logos/quadra-9-livre.svg" },
 ];
 
 export const DEFAULT_COURT_STATUSES: Record<string, CourtStatus> = COURTS.reduce(
   (statuses, court) => ({
     ...statuses,
-    [court.id]: court.reserve ? "disabled" : "active",
+    [court.id]: "active",
   }),
   {} as Record<string, CourtStatus>,
 );

@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { Expand, MapPin, Radio, Trophy } from "lucide-react";
 import { Brand } from "@/components/Brand";
@@ -100,15 +99,11 @@ export default function RealtimeClient() {
               </p>
             </div>
 
-            <div className="flex flex-col gap-2 rounded-xl border border-white/10 bg-black/25 p-3 text-center">
-              <div className="relative mx-auto h-12 w-44">
-                <Image src="/brand/arena-360-clean.png" alt="Arena 360" fill sizes="176px" className="object-contain drop-shadow-[0_0_14px_rgba(132,204,22,0.18)]" />
-              </div>
-              <div className="text-[9px] font-black uppercase tracking-[0.22em] text-slate-500">Arena sede</div>
+            <div className="flex flex-col justify-center gap-2 rounded-xl border border-white/10 bg-black/25 p-3 text-center">
               <button
                 type="button"
                 onClick={handleFullScreen}
-                className="mt-1 inline-flex h-10 items-center justify-center gap-2 rounded-md border border-lime-300/30 bg-lime-300/10 px-3 text-[11px] font-black uppercase text-lime-100 transition hover:bg-lime-300 hover:text-slate-950"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-lime-300/30 bg-lime-300/10 px-3 text-[11px] font-black uppercase text-lime-100 transition hover:bg-lime-300 hover:text-slate-950"
               >
                 <Expand className="h-4 w-4" aria-hidden="true" />
                 Tela cheia
@@ -153,7 +148,10 @@ function GroupsPanel({ state, fullscreen = false }: { state: TournamentState; fu
     [state.groups, state.settings.courtStatuses],
   );
   const blocks = useMemo(() => {
-    const nextBlocks = [publicGroups.slice(0, 4), publicGroups.slice(4, 8)].filter((block) => block.length > 0);
+    const nextBlocks: Group[][] = [];
+    for (let index = 0; index < publicGroups.length; index += 3) {
+      nextBlocks.push(publicGroups.slice(index, index + 3));
+    }
     return nextBlocks.length > 0 ? nextBlocks : [[]];
   }, [publicGroups]);
   const visibleGroups = blocks[groupBlock] ?? blocks[0];
@@ -173,7 +171,7 @@ function GroupsPanel({ state, fullscreen = false }: { state: TournamentState; fu
           <div>
             <div className="text-xs font-black uppercase text-lime-200">Fase de grupos no telão</div>
             <div className="mt-1 text-xs font-bold text-slate-300 xl:text-sm">
-              Bloco {groupBlock + 1} de 2 · troca automática a cada 12s para manter leitura grande na TV.
+              Bloco {groupBlock + 1} de {blocks.length} · troca automática a cada 12s para manter leitura grande na TV.
             </div>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:flex">
@@ -196,7 +194,7 @@ function GroupsPanel({ state, fullscreen = false }: { state: TournamentState; fu
         </div>
       )}
 
-      <div className={cn("grid gap-3 md:grid-cols-2 xl:grid-cols-4", fullscreen && "h-full")}>
+      <div className={cn("grid gap-3 md:grid-cols-2 xl:grid-cols-3", fullscreen && "h-full")}>
         {visibleGroups.length === 0 && (
           <div className="rounded-xl border border-white/10 bg-black/45 p-6 text-center text-lg font-black uppercase text-slate-300">
             Nenhuma quadra ativa no momento.

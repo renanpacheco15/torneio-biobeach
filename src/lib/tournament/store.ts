@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useSyncExternalStore } from "react";
 import { createInitialTournamentState, getInitialGroupMatches, getInitialKnockoutMatches } from "./data";
 import { getBracketView, getPairName, validateScore } from "./calculations";
-import type { CourtStatus, GroupId, TournamentLog, TournamentState } from "./types";
+import type { CourtStatus, GroupId, OverallManualDecision, TournamentLog, TournamentState } from "./types";
 
 const STORAGE_KEY = "biobeach:tournament:v1";
 const CHANNEL_NAME = "biobeach-live";
@@ -24,6 +24,14 @@ function createLog(actor: TournamentLog["actor"], message: string): TournamentLo
   };
 }
 
+function mergeById<T extends { id: string }>(defaults: T[], stored?: T[]): T[] {
+  const storedMap = new Map((stored ?? []).map((item) => [item.id, item]));
+  return defaults.map((item) => ({
+    ...item,
+    ...(storedMap.get(item.id) ?? {}),
+  }));
+}
+
 function mergeWithDefaults(value: TournamentState): TournamentState {
   const defaults = INITIAL_STATE;
   const validKnockoutPhases = new Set(["round16", "quarterfinal", "semifinal", "final"]);
@@ -36,13 +44,28 @@ function mergeWithDefaults(value: TournamentState): TournamentState {
     ...value,
     version: 1,
     groups: defaults.groups,
-    pairs: value.pairs?.length ? value.pairs : defaults.pairs,
-    groupMatches: value.groupMatches?.length ? value.groupMatches : defaults.groupMatches,
+    pairs: mergeById(defaults.pairs, value.pairs),
+    groupMatches: mergeById(defaults.groupMatches, value.groupMatches),
     knockoutMatches:
       value.knockoutMatches?.length && !hasUnsupportedBracket && !hasLegacyBracket && !hasDifferentBracketSize
-        ? value.knockoutMatches
+        ? defaults.knockoutMatches.map((defaultMatch) => {
+            const stored = value.knockoutMatches.find((match) => match.id === defaultMatch.id);
+            return stored
+              ? {
+                  ...defaultMatch,
+                  ...stored,
+                  phase: defaultMatch.phase,
+                  order: defaultMatch.order,
+                  seedA: defaultMatch.seedA,
+                  seedB: defaultMatch.seedB,
+                }
+              : defaultMatch;
+          })
         : defaults.knockoutMatches,
     manualRankOrder: value.manualRankOrder ?? {},
+    manualOverallSecondOrder: value.manualOverallSecondOrder ?? [],
+    manualOverallDecisions: value.manualOverallDecisions ?? {},
+    regulation: value.regulation ?? defaults.regulation,
     settings: {
       ...defaults.settings,
       ...value.settings,
@@ -384,6 +407,90 @@ export function useTournamentStore() {
         );
       },
 
+      moveManualOverallSecond(pairId: string, direction: -1 | 1) {
+        commit(
+          (previous) => {
+            const current =
+              previous.manualOverallSecondOrder.length > 0
+                ? [...previous.manualOverallSecondOrder]
+                : previous.groups
+                    .map((group) =>
+                      previous.pairs
+                        .filter((pair) => pair.groupId === group.id)
+                        .sort((a, b) => a.seed - b.seed)[1]?.id,
+                    )
+                    .filter((id): id is string => Boolean(id));
+            const index = current.indexOf(pairId);
+            const nextIndex = index + direction;
+
+            if (index < 0 || nextIndex < 0 || nextIndex >= current.length) return previous;
+
+            [current[index], current[nextIndex]] = [current[nextIndex], current[index]];
+
+            return {
+              ...previous,
+              manualOverallSecondOrder: current,
+            };
+          },
+          createLog("admin", "CritÃ©rio manual dos melhores segundos ajustado."),
+        );
+      },
+
+      setManualOverallDecision(pairId: string, decision: OverallManualDecision | null) {
+        commit(
+          (previous) => {
+            const next = { ...previous.manualOverallDecisions };
+            if (decision) {
+              next[pairId] = decision;
+            } else {
+              delete next[pairId];
+            }
+
+            return {
+              ...previous,
+              manualOverallDecisions: next,
+            };
+          },
+          createLog("admin", `DecisÃ£o manual geral atualizada para ${pairId}.`),
+        );
+      },
+
+      clearManualOverallRanking() {
+        commit(
+          (previous) => ({
+            ...previous,
+            manualOverallSecondOrder: [],
+            manualOverallDecisions: {},
+          }),
+          createLog("admin", "CritÃ©rio manual geral limpo."),
+        );
+      },
+
+      updateRegulation(title: string, subtitle: string, body: string) {
+        commit(
+          (previous) => ({
+            ...previous,
+            regulation: {
+              title: title.trim() || previous.regulation.title,
+              subtitle: subtitle.trim() || previous.regulation.subtitle,
+              body: body.trim() || previous.regulation.body,
+              updatedAt: new Date().toISOString(),
+            },
+          }),
+          createLog("admin", "Regulamento atualizado."),
+        );
+      },
+
+      resetRegulation() {
+        commit(
+          (previous) => ({
+            ...previous,
+            regulation: INITIAL_STATE.regulation,
+          }),
+          createLog("admin", "Regulamento restaurado."),
+        );
+      },
+
       setLocked(locked: boolean) {
         commit(
           (previous) => ({
@@ -436,6 +543,8 @@ export function useTournamentStore() {
             groupMatches: getInitialGroupMatches(),
             knockoutMatches: getInitialKnockoutMatches(),
             manualRankOrder: {},
+            manualOverallSecondOrder: [],
+            manualOverallDecisions: {},
           }),
           createLog("admin", "Resultados resetados."),
         );

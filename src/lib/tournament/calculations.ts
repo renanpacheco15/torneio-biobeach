@@ -184,30 +184,171 @@ export function calculateOverallRanking(state: TournamentState): OverallRankedPa
       group,
       groupPosition: row.position,
       overallPosition: 0,
+      overallStatus: "eliminated" as const,
+      overallStatusLabel: "ELIMINADO",
+      manualDecision: state.manualOverallDecisions[row.pair.id],
     })),
   );
 
-  ranking.sort((a, b) => {
-    const numericCriteria =
-      b.wins - a.wins ||
-      b.balance - a.balance ||
-      b.pointsFor - a.pointsFor ||
-      a.pointsAgainst - b.pointsAgainst ||
-      b.played - a.played;
-
-    if (numericCriteria !== 0) return numericCriteria;
-
-    return a.group.number - b.group.number || a.pair.seed - b.pair.seed;
-  });
+  const selectedRunnerUps = new Set(getClassifiedRunnerUps(state).map((row) => row.pair.id));
+  ranking.sort(compareOverallRows);
 
   return ranking.map((row, index) => ({
+    ...row,
+    overallPosition: index + 1,
+    classifying: row.groupPosition === 1 || selectedRunnerUps.has(row.pair.id),
+    overallStatus:
+      row.groupPosition === 1
+        ? "group-winner"
+        : selectedRunnerUps.has(row.pair.id)
+          ? "best-runner-up"
+          : "eliminated",
+    overallStatusLabel:
+      row.groupPosition === 1
+        ? "CLASSIFICADO — 1º DO GRUPO"
+        : selectedRunnerUps.has(row.pair.id)
+          ? row.manualDecision === "classified"
+            ? "CLASSIFICADO — DECISÃO MANUAL"
+            : "CLASSIFICADO — MELHOR SEGUNDO"
+          : "ELIMINADO",
+  }));
+}
+
+export function getQualifiedPairs(state: TournamentState): RankedPair[] {
+  return getQualifiedOverallRanking(state);
+}
+
+export function getSecondPlaceRanking(state: TournamentState): OverallRankedPair[] {
+  const rows = state.groups.flatMap((group) => {
+    const second = calculateGroupRanking(state, group.id)[1];
+    if (!second) return [];
+
+    return [
+      {
+        ...second,
+        group,
+        groupPosition: second.position,
+        overallPosition: 0,
+        overallStatus: "manual-pending" as const,
+        overallStatusLabel: "AGUARDANDO CRITÉRIO MANUAL",
+        manualDecision: state.manualOverallDecisions[second.pair.id],
+      },
+    ];
+  });
+
+  return applyManualRunnerUpOrder(state, rows).map((row, index) => ({
     ...row,
     overallPosition: index + 1,
   }));
 }
 
-export function getQualifiedPairs(state: TournamentState): RankedPair[] {
-  return state.groups.flatMap((group) => calculateGroupRanking(state, group.id).slice(0, 2));
+export function getQualifiedOverallRanking(state: TournamentState): OverallRankedPair[] {
+  const winners = state.groups.flatMap((group) => {
+    const first = calculateGroupRanking(state, group.id)[0];
+    if (!first) return [];
+
+    return [
+      {
+        ...first,
+        group,
+        groupPosition: first.position,
+        overallPosition: 0,
+        overallStatus: "group-winner" as const,
+        overallStatusLabel: "CLASSIFICADO — 1º DO GRUPO",
+        manualDecision: state.manualOverallDecisions[first.pair.id],
+      },
+    ];
+  });
+
+  const runnerUps = getClassifiedRunnerUps(state).map((row) => ({
+    ...row,
+    classifying: true,
+    overallStatus: "best-runner-up" as const,
+    overallStatusLabel: row.manualDecision === "classified" ? "CLASSIFICADO — DECISÃO MANUAL" : "CLASSIFICADO — MELHOR SEGUNDO",
+  }));
+
+  return [...winners, ...runnerUps].sort(compareOverallRows).slice(0, 16).map((row, index) => ({
+    ...row,
+    overallPosition: index + 1,
+    classifying: true,
+  }));
+}
+
+function getClassifiedRunnerUps(state: TournamentState): OverallRankedPair[] {
+  const orderedSeconds = applyManualRunnerUpOrder(
+    state,
+    getSecondPlaceRows(state),
+  );
+  const forcedClassified = orderedSeconds.filter((row) => row.manualDecision === "classified");
+  const neutral = orderedSeconds.filter((row) => !row.manualDecision);
+  const forcedEliminated = new Set(orderedSeconds.filter((row) => row.manualDecision === "eliminated").map((row) => row.pair.id));
+  const selected: OverallRankedPair[] = [];
+
+  [...forcedClassified, ...neutral].forEach((row) => {
+    if (selected.length >= 7) return;
+    if (forcedEliminated.has(row.pair.id)) return;
+    if (selected.some((item) => item.pair.id === row.pair.id)) return;
+    selected.push(row);
+  });
+
+  return selected;
+}
+
+function getSecondPlaceRows(state: TournamentState): OverallRankedPair[] {
+  return state.groups.flatMap((group) => {
+    const second = calculateGroupRanking(state, group.id)[1];
+    if (!second) return [];
+
+    return [
+      {
+        ...second,
+        group,
+        groupPosition: second.position,
+        overallPosition: 0,
+        overallStatus: "manual-pending" as const,
+        overallStatusLabel: "AGUARDANDO CRITÉRIO MANUAL",
+        manualDecision: state.manualOverallDecisions[second.pair.id],
+      },
+    ];
+  });
+}
+
+function applyManualRunnerUpOrder(state: TournamentState, rows: OverallRankedPair[]): OverallRankedPair[] {
+  const automaticOrder = [...rows].sort(compareOverallRows);
+  const automaticIndex = new Map(automaticOrder.map((row, index) => [row.pair.id, index]));
+  const manualIndex = new Map((state.manualOverallSecondOrder ?? []).map((pairId, index) => [pairId, index]));
+
+  return [...rows].sort((a, b) => {
+    const decisionPriority = decisionWeight(a.manualDecision) - decisionWeight(b.manualDecision);
+    if (decisionPriority !== 0) return decisionPriority;
+
+    const manualA = manualIndex.get(a.pair.id);
+    const manualB = manualIndex.get(b.pair.id);
+    if (manualA !== undefined && manualB !== undefined && manualA !== manualB) return manualA - manualB;
+    if (manualA !== undefined) return -1;
+    if (manualB !== undefined) return 1;
+
+    return (automaticIndex.get(a.pair.id) ?? 0) - (automaticIndex.get(b.pair.id) ?? 0);
+  });
+}
+
+function decisionWeight(decision?: "classified" | "eliminated"): number {
+  if (decision === "classified") return 0;
+  if (decision === "eliminated") return 2;
+  return 1;
+}
+
+function compareOverallRows(a: OverallRankedPair, b: OverallRankedPair): number {
+  return (
+    b.wins - a.wins ||
+    b.balance - a.balance ||
+    b.pointsFor - a.pointsFor ||
+    a.pointsAgainst - b.pointsAgainst ||
+    b.played - a.played ||
+    b.winRate - a.winRate ||
+    a.group.number - b.group.number ||
+    a.pair.seed - b.pair.seed
+  );
 }
 
 export function getTournamentProgress(state: TournamentState) {
@@ -288,6 +429,15 @@ function resolveSeed(state: TournamentState, seed: KnockoutSeed): { label: strin
   if (seed.type === "label") {
     return {
       label: seed.label,
+    };
+  }
+
+  if (seed.type === "overall") {
+    const ranked = getQualifiedOverallRanking(state)[seed.position - 1];
+
+    return {
+      label: `${seed.position}º geral`,
+      pair: ranked?.pair,
     };
   }
 

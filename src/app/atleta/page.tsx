@@ -191,7 +191,7 @@ function AthletePageContent() {
   );
 }
 
-const GROUP_IDS: GroupId[] = ["G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8"];
+const GROUP_IDS: GroupId[] = ["G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "G9"];
 
 function isGroupId(value: string | null): value is GroupId {
   return GROUP_IDS.includes(value as GroupId);
@@ -201,7 +201,7 @@ function parseGroupParam(groupId: string | null): GroupId {
   if (isGroupId(groupId)) return groupId;
 
   const numericGroup = Number(groupId);
-  if (Number.isInteger(numericGroup) && numericGroup >= 1 && numericGroup <= 8) {
+  if (Number.isInteger(numericGroup) && numericGroup >= 1 && numericGroup <= 9) {
     return `G${numericGroup}` as GroupId;
   }
 

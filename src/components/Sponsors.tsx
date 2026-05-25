@@ -27,7 +27,7 @@ export function SponsorRibbon({ className, dark = false, title = "Quadras oficia
           <Sparkles className="h-4 w-4" aria-hidden="true" />
           {title}
         </div>
-        <div className="grid flex-1 grid-cols-2 gap-2 md:grid-cols-4 xl:grid-cols-8">
+        <div className="grid flex-1 grid-cols-2 gap-2 md:grid-cols-4 xl:grid-cols-9">
           {groups.map((group) => (
             <CourtSponsorMini key={group.id} group={group} dark={dark} />
           ))}
@@ -49,7 +49,7 @@ export function SponsorWall() {
           <h2 className="mt-2 text-3xl font-black uppercase tracking-normal">Patrocinadores por quadra</h2>
         </div>
         <div className="rounded-md bg-white/10 px-4 py-3 text-sm font-black uppercase text-emerald-100 ring-1 ring-white/10">
-          8 quadras · 8 patrocinadores
+          {GROUPS.length} quadras · {GROUPS.length} patrocinadores
         </div>
       </div>
 

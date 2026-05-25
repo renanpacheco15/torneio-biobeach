@@ -66,6 +66,12 @@ export const COURT_SPONSORS: Record<GroupId, CourtSponsor> = {
     src: "/sponsors/dr-helcio-rabelo-clean.png",
     role: "court",
   },
+  G9: {
+    groupId: "G9",
+    name: "Livre",
+    src: "/logos/quadra-9-livre.svg",
+    role: "court",
+  },
 };
 
 export const COURT_SPONSOR_LIST = Object.values(COURT_SPONSORS).sort((a, b) => a.groupId.localeCompare(b.groupId));

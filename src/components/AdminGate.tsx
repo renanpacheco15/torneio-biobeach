@@ -11,7 +11,7 @@ export type AdminRole = "admin" | `mesario-${number}`;
 
 const roleOptions: Array<{ role: AdminRole; label: string }> = [
   { role: "admin", label: "Administrador geral" },
-  ...Array.from({ length: 8 }, (_, index) => ({
+  ...Array.from({ length: 9 }, (_, index) => ({
     role: `mesario-${index + 1}` as AdminRole,
     label: `Mesário ${index + 1}`,
   })),

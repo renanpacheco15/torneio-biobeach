@@ -153,6 +153,24 @@ export const GROUPS: Group[] = [
       gradient: "from-yellow-900 via-amber-600 to-yellow-300",
     },
   },
+  {
+    id: "G9",
+    number: 9,
+    slug: "livre",
+    court: "Quadra 9",
+    name: "LIVRE",
+    sponsor: "Livre",
+    shortName: "Livre",
+    theme: {
+      primary: "#1d4ed8",
+      secondary: "#0f172a",
+      accent: "#38bdf8",
+      soft: "#e0f2fe",
+      text: "#075985",
+      border: "#bae6fd",
+      gradient: "from-blue-800 via-blue-600 to-sky-400",
+    },
+  },
 ];
 
 const OFFICIAL_PAIRS: Record<GroupId, string[]> = {
@@ -212,6 +230,13 @@ const OFFICIAL_PAIRS: Record<GroupId, string[]> = {
     "Igor Baza x PENDENTE",
     "Milane x PENDENTE",
   ],
+  G9: [
+    "Dupla 1 Quadra 9 x PENDENTE",
+    "Dupla 2 Quadra 9 x PENDENTE",
+    "Dupla 3 Quadra 9 x PENDENTE",
+    "Dupla 4 Quadra 9 x PENDENTE",
+    "Dupla 5 Quadra 9 x PENDENTE",
+  ],
 };
 
 export const GROUP_GAME_ORDER: Array<[number, number]> = [
@@ -256,36 +281,36 @@ export function getInitialGroupMatches(): GroupMatch[] {
 export function getInitialKnockoutMatches(): KnockoutMatch[] {
   const round16Seeds: Array<Pick<KnockoutMatch, "seedA" | "seedB">> = [
     {
-      seedA: { type: "group", groupId: "G1", position: 1 },
-      seedB: { type: "group", groupId: "G8", position: 2 },
+      seedA: { type: "overall", position: 1 },
+      seedB: { type: "overall", position: 16 },
     },
     {
-      seedA: { type: "group", groupId: "G2", position: 1 },
-      seedB: { type: "group", groupId: "G7", position: 2 },
+      seedA: { type: "overall", position: 2 },
+      seedB: { type: "overall", position: 15 },
     },
     {
-      seedA: { type: "group", groupId: "G3", position: 1 },
-      seedB: { type: "group", groupId: "G6", position: 2 },
+      seedA: { type: "overall", position: 3 },
+      seedB: { type: "overall", position: 14 },
     },
     {
-      seedA: { type: "group", groupId: "G4", position: 1 },
-      seedB: { type: "group", groupId: "G5", position: 2 },
+      seedA: { type: "overall", position: 4 },
+      seedB: { type: "overall", position: 13 },
     },
     {
-      seedA: { type: "group", groupId: "G5", position: 1 },
-      seedB: { type: "group", groupId: "G4", position: 2 },
+      seedA: { type: "overall", position: 5 },
+      seedB: { type: "overall", position: 12 },
     },
     {
-      seedA: { type: "group", groupId: "G6", position: 1 },
-      seedB: { type: "group", groupId: "G3", position: 2 },
+      seedA: { type: "overall", position: 6 },
+      seedB: { type: "overall", position: 11 },
     },
     {
-      seedA: { type: "group", groupId: "G7", position: 1 },
-      seedB: { type: "group", groupId: "G2", position: 2 },
+      seedA: { type: "overall", position: 7 },
+      seedB: { type: "overall", position: 10 },
     },
     {
-      seedA: { type: "group", groupId: "G8", position: 1 },
-      seedB: { type: "group", groupId: "G1", position: 2 },
+      seedA: { type: "overall", position: 8 },
+      seedB: { type: "overall", position: 9 },
     },
   ];
 
@@ -337,6 +362,48 @@ export function getInitialKnockoutMatches(): KnockoutMatch[] {
 
 const INITIAL_STATE_TIMESTAMP = "2026-01-01T00:00:00.000Z";
 
+export const DEFAULT_REGULATION = {
+  title: "REGULAMENTO OFICIAL — TORNEIO BIOBEACH",
+  subtitle: "Formato, classificação e critérios oficiais do torneio.",
+  body: `1. FORMATO DO TORNEIO
+O Torneio BIOBEACH será disputado com 45 duplas, divididas em 9 grupos de 5 duplas cada. Cada grupo será vinculado a uma quadra oficial do torneio.
+
+2. FASE DE GRUPOS
+Na fase de grupos, todas as duplas do mesmo grupo se enfrentam entre si. Cada grupo terá 10 jogos no formato todos contra todos.
+
+3. CLASSIFICAÇÃO PARA O MATA-MATA
+Classificam-se para as Oitavas de Final os 9 primeiros colocados de cada grupo e os 7 melhores segundos colocados gerais, totalizando 16 duplas classificadas.
+
+4. MELHORES SEGUNDOS COLOCADOS
+Os segundos colocados de cada grupo serão comparados no Ranking Geral. O sistema poderá apresentar uma ordenação automática considerando vitórias, saldo de pontos, pontos feitos, pontos contra e aproveitamento.
+
+5. DECISÃO MANUAL DA ORGANIZAÇÃO
+Em caso de empate ou necessidade de critério final, a organização poderá definir manualmente a classificação geral no painel administrativo do site. A decisão manual da organização prevalecerá para fins de montagem do mata-mata.
+
+6. MATA-MATA
+Após a definição dos 16 classificados, o chaveamento será montado conforme a classificação geral final:
+1º geral x 16º geral
+2º geral x 15º geral
+3º geral x 14º geral
+4º geral x 13º geral
+5º geral x 12º geral
+6º geral x 11º geral
+7º geral x 10º geral
+8º geral x 9º geral
+
+7. FASES ELIMINATÓRIAS
+O mata-mata será composto por Oitavas de Final, Quartas de Final, Semifinais e Grande Final.
+
+8. LANÇAMENTO DOS PLACARES
+Os placares serão lançados pelos mesários responsáveis por cada quadra. Após o lançamento, as informações serão atualizadas no Ranking, Tabela e página Acompanhe em Tempo Real.
+
+9. CRITÉRIO FINAL
+A organização do torneio terá autonomia para resolver casos omissos, inconsistências, empates extremos ou situações não previstas neste regulamento.
+
+10. ACEITE DO REGULAMENTO
+Ao participar do torneio, os atletas declaram estar cientes e de acordo com as regras estabelecidas pela organização.`,
+};
+
 export function createInitialTournamentState(): TournamentState {
   const now = INITIAL_STATE_TIMESTAMP;
 
@@ -348,6 +415,9 @@ export function createInitialTournamentState(): TournamentState {
     groupMatches: getInitialGroupMatches(),
     knockoutMatches: getInitialKnockoutMatches(),
     manualRankOrder: {},
+    manualOverallSecondOrder: [],
+    manualOverallDecisions: {},
+    regulation: DEFAULT_REGULATION,
     settings: {
       locked: false,
       courtStatuses: DEFAULT_COURT_STATUSES,

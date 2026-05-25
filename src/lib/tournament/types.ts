@@ -6,7 +6,8 @@ export type GroupId =
   | "G5"
   | "G6"
   | "G7"
-  | "G8";
+  | "G8"
+  | "G9";
 
 export type MatchStatus = "pending" | "live" | "finished";
 export type KnockoutPhase = "round16" | "quarterfinal" | "semifinal" | "final";
@@ -61,6 +62,10 @@ export type KnockoutSeed =
       position: 1 | 2;
     }
   | {
+      type: "overall";
+      position: number;
+    }
+  | {
       type: "winner";
       matchId: string;
     }
@@ -90,6 +95,15 @@ export type TournamentSettings = {
   liveStreams: Record<string, string>;
 };
 
+export type OverallManualDecision = "classified" | "eliminated";
+
+export type RegulationContent = {
+  title: string;
+  subtitle: string;
+  body: string;
+  updatedAt?: string;
+};
+
 export type TournamentLog = {
   id: string;
   at: string;
@@ -105,6 +119,9 @@ export type TournamentState = {
   groupMatches: GroupMatch[];
   knockoutMatches: KnockoutMatch[];
   manualRankOrder: Partial<Record<GroupId, string[]>>;
+  manualOverallSecondOrder: string[];
+  manualOverallDecisions: Record<string, OverallManualDecision>;
+  regulation: RegulationContent;
   settings: TournamentSettings;
   logs: TournamentLog[];
 };
@@ -126,4 +143,7 @@ export type OverallRankedPair = RankedPair & {
   group: Group;
   groupPosition: number;
   overallPosition: number;
+  overallStatus: "group-winner" | "best-runner-up" | "manual-pending" | "eliminated";
+  overallStatusLabel: string;
+  manualDecision?: OverallManualDecision;
 };

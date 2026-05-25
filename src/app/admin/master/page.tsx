@@ -81,20 +81,30 @@ function MasterAdminContent() {
   };
 
   return (
-    <main className="min-h-screen px-4 py-4 sm:px-6 lg:px-8">
-      <div className="mx-auto flex max-w-7xl flex-col gap-4">
-        <header className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <Brand compact />
-            <div className="flex flex-wrap gap-2">
-              <Link href="/" className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-200 px-4 text-sm font-black uppercase text-slate-800">
+    <main className="min-h-screen overflow-x-hidden bg-[#020403] px-4 py-4 text-white sm:px-6 lg:px-8">
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_18%_0%,rgba(132,204,22,0.14),transparent_34%),radial-gradient(circle_at_88%_14%,rgba(245,197,66,0.12),transparent_30%),linear-gradient(180deg,rgba(255,255,255,0.035),transparent_32%)]" />
+      <div className="relative z-10 mx-auto flex max-w-7xl flex-col gap-4">
+        <header className="overflow-hidden rounded-xl border border-white/10 bg-black/70 p-4 shadow-[0_0_54px_rgba(132,204,22,0.10)] backdrop-blur">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <Brand dark compact />
+              <div className="h-px w-full bg-white/10 sm:h-10 sm:w-px" />
+              <div>
+                <div className="inline-flex rounded-md border border-lime-300/25 bg-lime-300/10 px-2.5 py-1 text-[10px] font-black uppercase text-lime-200">
+                  Operação central
+                </div>
+                <h1 className="mt-2 text-2xl font-black uppercase leading-none text-white sm:text-3xl">Painel do administrador</h1>
+              </div>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5 xl:min-w-[720px]">
+              <Link href="/" className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-white/10 bg-white/[0.055] px-4 text-xs font-black uppercase text-slate-200 transition hover:border-lime-300/40 hover:text-lime-200">
                 <ChevronLeft className="h-4 w-4" aria-hidden="true" />
                 Início
               </Link>
               <button
                 type="button"
                 onClick={() => actions.setLocked(!state.settings.locked)}
-                className={`inline-flex h-11 items-center justify-center gap-2 rounded-md px-4 text-sm font-black uppercase text-white ${state.settings.locked ? "bg-emerald-600" : "bg-amber-600"}`}
+                className={`inline-flex h-12 items-center justify-center gap-2 rounded-md px-4 text-xs font-black uppercase text-white shadow-[0_0_22px_rgba(255,255,255,0.06)] transition hover:-translate-y-0.5 ${state.settings.locked ? "bg-emerald-600" : "bg-amber-600"}`}
               >
                 {state.settings.locked ? <Unlock className="h-4 w-4" aria-hidden="true" /> : <Lock className="h-4 w-4" aria-hidden="true" />}
                 {state.settings.locked ? "Destravar" : "Travar"}
@@ -102,14 +112,14 @@ function MasterAdminContent() {
               <button
                 type="button"
                 onClick={exportBackup}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-black uppercase text-white"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-lime-300 px-4 text-xs font-black uppercase text-slate-950 shadow-[0_0_26px_rgba(190,242,100,0.18)] transition hover:-translate-y-0.5"
               >
                 <Download className="h-4 w-4" aria-hidden="true" />
-                Exportar dados
+                Exportar
               </button>
-              <label className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-4 text-sm font-black uppercase text-slate-800">
+              <label className="inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-md border border-cyan-300/30 bg-cyan-300/10 px-4 text-xs font-black uppercase text-cyan-100 shadow-[0_0_24px_rgba(34,211,238,0.10)] transition hover:-translate-y-0.5 hover:border-cyan-300/60">
                 <FileUp className="h-4 w-4" aria-hidden="true" />
-                Importar dados
+                Importar
                 <input type="file" accept="application/json" onChange={importBackup} className="sr-only" />
               </label>
               <button
@@ -117,14 +127,14 @@ function MasterAdminContent() {
                 onClick={() => {
                   if (window.confirm("Resetar todos os resultados do torneio?")) actions.resetResults();
                 }}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-red-600 px-4 text-sm font-black uppercase text-white"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-red-400/30 bg-red-500/15 px-4 text-xs font-black uppercase text-red-100 shadow-[0_0_24px_rgba(239,68,68,0.10)] transition hover:-translate-y-0.5 hover:bg-red-500/25"
               >
                 <RotateCcw className="h-4 w-4" aria-hidden="true" />
                 Resetar
               </button>
             </div>
           </div>
-          {importError && <div className="mt-3 rounded-md bg-red-50 px-3 py-2 text-sm font-bold text-red-700">{importError}</div>}
+          {importError && <div className="mt-3 rounded-md border border-red-400/30 bg-red-500/10 px-3 py-2 text-sm font-bold text-red-100">{importError}</div>}
         </header>
 
         <section className="grid gap-3 md:grid-cols-4">
@@ -137,21 +147,21 @@ function MasterAdminContent() {
         <CourtManagement state={state} actions={actions} />
 
         <section className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="rounded-xl border border-white/10 bg-white/[0.055] p-4 shadow-[0_0_34px_rgba(132,204,22,0.08)] backdrop-blur">
             <div className="mb-3 flex items-center gap-2">
               <ShieldCheck className="h-5 w-5 text-emerald-600" aria-hidden="true" />
-              <h2 className="text-xl font-black uppercase tracking-normal">Classificados provisórios</h2>
+              <h2 className="text-xl font-black uppercase tracking-normal text-white">Classificados provisórios</h2>
             </div>
             <div className="grid gap-2 md:grid-cols-2">
               {qualified.map((row) => {
                 const group = state.groups.find((item) => item.id === row.pair.groupId);
                 return (
-                  <div key={row.pair.id} className="rounded-md border border-emerald-200 bg-emerald-50 p-3">
-                    <div className="text-xs font-black uppercase text-emerald-700">
+                  <div key={row.pair.id} className="rounded-md border border-emerald-300/25 bg-emerald-400/10 p-3">
+                    <div className="text-xs font-black uppercase text-emerald-300">
                       Grupo {group?.number} · {row.position}º colocado
                     </div>
-                    <div className="mt-1 font-black text-emerald-950">{row.pair.name}</div>
-                    <div className="mt-1 text-xs font-bold text-emerald-800">
+                    <div className="mt-1 font-black text-white">{row.pair.name}</div>
+                    <div className="mt-1 text-xs font-bold text-emerald-100">
                       V {row.wins} · Saldo {row.balance > 0 ? "+" : ""}
                       {row.balance} · PF {row.pointsFor}
                     </div>
@@ -168,18 +178,18 @@ function MasterAdminContent() {
           </div>
         </section>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <section className="rounded-xl border border-white/10 bg-white/[0.055] p-4 shadow-[0_0_34px_rgba(132,204,22,0.08)] backdrop-blur">
           <div className="mb-3 flex items-center gap-2">
             <Trophy className="h-5 w-5 text-amber-500" aria-hidden="true" />
-            <h2 className="text-xl font-black uppercase tracking-normal">Classificação geral das 40 duplas</h2>
+            <h2 className="text-xl font-black uppercase tracking-normal text-white">Classificação geral das 40 duplas</h2>
           </div>
           <OverallRankingTable ranking={overallRanking} />
         </section>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <section className="rounded-xl border border-white/10 bg-white/[0.055] p-4 shadow-[0_0_34px_rgba(132,204,22,0.08)] backdrop-blur">
           <div className="mb-3 flex items-center gap-2">
             <Trophy className="h-5 w-5 text-amber-500" aria-hidden="true" />
-            <h2 className="text-xl font-black uppercase tracking-normal">Mata-mata oficial</h2>
+            <h2 className="text-xl font-black uppercase tracking-normal text-white">Mata-mata oficial</h2>
           </div>
           <div className="grid gap-3 lg:grid-cols-2">
             {bracket.map((match) => (
@@ -202,7 +212,7 @@ function MasterAdminContent() {
             const pairs = state.pairs.filter((pair) => pair.groupId === group.id).sort((a, b) => a.seed - b.seed);
 
             return (
-              <details key={group.id} className="rounded-lg border border-slate-200 bg-white shadow-sm" open={group.id === "G1"}>
+              <details key={group.id} className="overflow-hidden rounded-xl border border-white/10 bg-white/[0.055] shadow-[0_0_26px_rgba(255,255,255,0.04)]" open={group.id === "G1"}>
                 <summary className={`cursor-pointer rounded-t-lg bg-gradient-to-r ${group.theme.gradient} p-4 text-white`}>
                   <span className="text-lg font-black uppercase tracking-normal">
                     Grupo {group.number} · {group.name}
@@ -212,7 +222,7 @@ function MasterAdminContent() {
                 <div className="grid gap-4 p-4 xl:grid-cols-[380px_1fr]">
                   <div className="space-y-4">
                     <div>
-                      <h3 className="mb-3 text-sm font-black uppercase text-slate-500">Editar duplas</h3>
+                      <h3 className="mb-3 text-sm font-black uppercase text-slate-300">Editar duplas</h3>
                       <div className="space-y-2">
                         {pairs.map((pair) => (
                           <PairNameEditor key={pair.id} pair={pair} onSave={actions.updatePairName} />
@@ -222,19 +232,19 @@ function MasterAdminContent() {
 
                     <div>
                       <div className="mb-3 flex items-center justify-between gap-2">
-                        <h3 className="text-sm font-black uppercase text-slate-500">Desempate manual</h3>
+                        <h3 className="text-sm font-black uppercase text-slate-300">Desempate manual</h3>
                         <button
                           type="button"
                           onClick={() => actions.clearManualRank(group.id)}
-                          className="rounded-md border border-slate-200 px-2.5 py-1 text-xs font-black uppercase text-slate-700"
+                          className="rounded-md border border-white/10 bg-white/[0.04] px-2.5 py-1 text-xs font-black uppercase text-slate-200"
                         >
                           Limpar
                         </button>
                       </div>
                       <div className="space-y-2">
                         {ranking.map((row) => (
-                          <div key={row.pair.id} className="flex items-center justify-between gap-2 rounded-md border border-slate-200 p-2">
-                            <span className="min-w-0 truncate text-sm font-black">{row.position}º {row.pair.name}</span>
+                          <div key={row.pair.id} className="flex items-center justify-between gap-2 rounded-md border border-white/10 bg-black/30 p-2">
+                            <span className="min-w-0 truncate text-sm font-black text-white">{row.position}º {row.pair.name}</span>
                             <div className="flex gap-1">
                               <RankButton label="Subir" onClick={() => actions.moveManualRank(group.id as GroupId, row.pair.id, -1)} icon="up" />
                               <RankButton label="Descer" onClick={() => actions.moveManualRank(group.id as GroupId, row.pair.id, 1)} icon="down" />
@@ -248,7 +258,7 @@ function MasterAdminContent() {
                   </div>
 
                   <div className="space-y-3">
-                    <h3 className="text-sm font-black uppercase text-slate-500">Corrigir resultados</h3>
+                    <h3 className="text-sm font-black uppercase text-slate-300">Corrigir resultados</h3>
                     {matches.map((match) => (
                       <MatchRow
                         key={`${match.id}-${match.status}-${match.scoreA ?? "a"}-${match.scoreB ?? "b"}`}
@@ -268,16 +278,16 @@ function MasterAdminContent() {
           })}
         </section>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <h2 className="mb-3 text-xl font-black uppercase tracking-normal">Log de alterações</h2>
+        <section className="rounded-xl border border-white/10 bg-white/[0.055] p-4 shadow-[0_0_34px_rgba(132,204,22,0.08)] backdrop-blur">
+          <h2 className="mb-3 text-xl font-black uppercase tracking-normal text-white">Log de alterações</h2>
           <div className="max-h-96 space-y-2 overflow-auto">
             {state.logs.map((log) => (
-              <div key={log.id} className="rounded-md border border-slate-200 p-3 text-sm">
+              <div key={log.id} className="rounded-md border border-white/10 bg-black/30 p-3 text-sm">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-md bg-slate-950 px-2 py-0.5 text-xs font-black uppercase text-white">{log.actor}</span>
-                  <span className="text-xs font-bold text-slate-500">{formatDateTime(log.at)}</span>
+                  <span className="rounded-md bg-lime-300 px-2 py-0.5 text-xs font-black uppercase text-slate-950">{log.actor}</span>
+                  <span className="text-xs font-bold text-slate-400">{formatDateTime(log.at)}</span>
                 </div>
-                <div className="mt-1 font-bold text-slate-800">{log.message}</div>
+                <div className="mt-1 font-bold text-slate-100">{log.message}</div>
               </div>
             ))}
           </div>
@@ -289,9 +299,9 @@ function MasterAdminContent() {
 
 function MetricCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="text-xs font-black uppercase text-slate-500">{label}</div>
-      <div className="mt-2 text-4xl font-black text-slate-950">{value}</div>
+    <div className="rounded-xl border border-white/10 bg-white/[0.055] p-4 shadow-[0_0_26px_rgba(132,204,22,0.06)] backdrop-blur">
+      <div className="text-xs font-black uppercase text-slate-400">{label}</div>
+      <div className="mt-2 text-4xl font-black text-white">{value}</div>
     </div>
   );
 }
@@ -304,11 +314,11 @@ function CourtManagement({
   actions: ReturnType<typeof useTournamentStore>["actions"];
 }) {
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <section className="rounded-xl border border-white/10 bg-white/[0.055] p-4 shadow-[0_0_34px_rgba(132,204,22,0.08)] backdrop-blur">
       <div className="mb-4">
         <div>
-          <h2 className="text-xl font-black uppercase tracking-normal">Status das Quadras</h2>
-          <p className="mt-1 text-sm font-bold text-slate-500">Ative/desative quadras e cadastre os links de transmissão por quadra.</p>
+          <h2 className="text-xl font-black uppercase tracking-normal text-white">Status das Quadras</h2>
+          <p className="mt-1 text-sm font-bold text-slate-400">Ative/desative quadras e cadastre os links de transmissão por quadra.</p>
         </div>
       </div>
 
@@ -318,14 +328,14 @@ function CourtManagement({
           const streamUrl = state.settings.liveStreams[court.id] ?? "";
 
           return (
-            <div key={court.id} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+            <div key={court.id} className="rounded-lg border border-white/10 bg-black/35 p-3">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <div className="text-xs font-black uppercase text-slate-500">{court.reserve ? "Reserva" : "Torneio"}</div>
-                  <div className="mt-1 text-lg font-black uppercase text-slate-950">{court.label}</div>
-                  <div className="text-xs font-bold uppercase text-slate-500">{court.sponsor}</div>
+                  <div className="text-xs font-black uppercase text-slate-400">{court.reserve ? "Reserva" : "Torneio"}</div>
+                  <div className="mt-1 text-lg font-black uppercase text-white">{court.label}</div>
+                  <div className="text-xs font-bold uppercase text-slate-400">{court.sponsor}</div>
                 </div>
-                <span className={`rounded-md px-2.5 py-1 text-xs font-black uppercase ${status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-slate-200 text-slate-600"}`}>
+                <span className={`rounded-md px-2.5 py-1 text-xs font-black uppercase ${status === "active" ? "bg-emerald-500 text-white" : "bg-white/10 text-slate-200"}`}>
                   {getCourtStatusLabel(status)}
                 </span>
               </div>
@@ -336,7 +346,7 @@ function CourtManagement({
                     key={option}
                     type="button"
                     onClick={() => actions.setCourtStatus(court.id, option)}
-                    className={`h-10 rounded-md text-[11px] font-black uppercase ${status === option ? "bg-slate-950 text-white" : "border border-slate-200 bg-white text-slate-700"}`}
+                    className={`h-10 rounded-md text-[11px] font-black uppercase ${status === option ? "bg-lime-300 text-slate-950" : "border border-white/10 bg-white/[0.04] text-slate-200"}`}
                   >
                     {getCourtStatusLabel(option)}
                   </button>
@@ -344,12 +354,12 @@ function CourtManagement({
               </div>
 
               <label className="mt-3 block">
-                <span className="text-xs font-black uppercase text-slate-500">Link da transmissão</span>
+                <span className="text-xs font-black uppercase text-slate-400">Link da transmissão</span>
                 <input
                   value={streamUrl}
                   onChange={(event) => actions.updateLiveStream(court.id, event.target.value)}
                   placeholder="https://..."
-                  className="mt-1 h-11 w-full rounded-md border border-slate-200 bg-white px-3 text-sm font-bold outline-none focus:border-slate-950"
+                  className="mt-1 h-11 w-full rounded-md border border-white/10 bg-slate-950 px-3 text-sm font-bold text-white outline-none placeholder:text-slate-600 focus:border-lime-300"
                 />
               </label>
             </div>
@@ -372,20 +382,20 @@ function CompactList({
   empty: string;
 }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <h2 className="mb-3 text-sm font-black uppercase text-slate-500">{title}</h2>
+    <div className="rounded-xl border border-white/10 bg-white/[0.055] p-4 shadow-[0_0_26px_rgba(255,255,255,0.04)] backdrop-blur">
+      <h2 className="mb-3 text-sm font-black uppercase text-slate-300">{title}</h2>
       <div className="space-y-2">
         {matches.length === 0 ? (
-          <div className="rounded-md bg-slate-50 p-3 text-sm font-bold text-slate-500">{empty}</div>
+          <div className="rounded-md border border-white/10 bg-black/30 p-3 text-sm font-bold text-slate-400">{empty}</div>
         ) : (
           matches.map((match) => (
-            <div key={match.id} className="rounded-md border border-slate-200 p-3 text-sm">
-              <div className="font-black uppercase text-slate-500">
+            <div key={match.id} className="rounded-md border border-white/10 bg-black/30 p-3 text-sm">
+              <div className="font-black uppercase text-slate-400">
                 Grupo {match.groupId.slice(1)} · Jogo {match.order}
               </div>
-              <div className="mt-1 grid grid-cols-[1fr_auto_1fr] gap-2 font-bold text-slate-950">
+              <div className="mt-1 grid grid-cols-[1fr_auto_1fr] gap-2 font-bold text-white">
                 <span>{getPairName(state, match.pairAId)}</span>
-                <span className="text-slate-400">{match.status === "finished" ? `${match.scoreA} x ${match.scoreB}` : "x"}</span>
+                <span className="text-lime-300">{match.status === "finished" ? `${match.scoreA} x ${match.scoreB}` : "x"}</span>
                 <span className="text-right">{getPairName(state, match.pairBId)}</span>
               </div>
             </div>
@@ -404,12 +414,12 @@ function PairNameEditor({ pair, onSave }: { pair: Pair; onSave: (pairId: string,
       <input
         value={name}
         onChange={(event) => setName(event.target.value)}
-        className="h-11 min-w-0 flex-1 rounded-md border border-slate-200 px-3 text-sm font-bold outline-none focus:border-slate-950"
+        className="h-11 min-w-0 flex-1 rounded-md border border-white/10 bg-slate-950 px-3 text-sm font-bold text-white outline-none focus:border-lime-300"
       />
       <button
         type="button"
         onClick={() => onSave(pair.id, name)}
-        className="inline-flex h-11 w-11 items-center justify-center rounded-md bg-slate-950 text-white"
+        className="inline-flex h-11 w-11 items-center justify-center rounded-md bg-lime-300 text-slate-950"
         title="Salvar nome"
       >
         <Save className="h-4 w-4" aria-hidden="true" />
@@ -425,7 +435,7 @@ function RankButton({ label, onClick, icon }: { label: string; onClick: () => vo
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-800"
+      className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-white/10 bg-white/[0.04] text-slate-100"
       title={label}
     >
       <Icon className="h-4 w-4" aria-hidden="true" />
@@ -460,19 +470,19 @@ function KnockoutAdminCard({
   };
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+    <div className="rounded-lg border border-white/10 bg-black/35 p-3">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <div className="text-xs font-black uppercase text-slate-500">
+          <div className="text-xs font-black uppercase text-slate-400">
             {stage.shortTitle} · {meta.code} · {courtGroup?.court ?? "Quadra"}
           </div>
-          <div className="mt-2 grid gap-1 text-sm font-black text-slate-950">
+          <div className="mt-2 grid gap-1 text-sm font-black text-white">
             <span>{match.resolvedPairA?.name ?? match.labelA}</span>
-            <span className="text-xs uppercase text-slate-400">x</span>
+            <span className="text-xs uppercase text-lime-300">x</span>
             <span>{match.resolvedPairB?.name ?? match.labelB}</span>
           </div>
         </div>
-        <span className="inline-flex w-fit rounded-md bg-slate-950 px-2.5 py-1 text-xs font-black uppercase text-white">
+        <span className="inline-flex w-fit rounded-md bg-lime-300 px-2.5 py-1 text-xs font-black uppercase text-slate-950">
           {getKnockoutStatusLabel(match.status)}
         </span>
       </div>
@@ -482,21 +492,21 @@ function KnockoutAdminCard({
           value={scoreA}
           onChange={(event) => setScoreA(event.target.value)}
           inputMode="numeric"
-          className="h-12 rounded-md border border-slate-200 bg-white px-3 text-center text-xl font-black outline-none focus:border-slate-950"
+          className="h-12 rounded-md border border-white/10 bg-slate-950 px-3 text-center text-xl font-black text-white outline-none focus:border-lime-300"
           placeholder="0"
         />
-        <span className="text-lg font-black uppercase text-slate-400">x</span>
+        <span className="text-lg font-black uppercase text-lime-300">x</span>
         <input
           value={scoreB}
           onChange={(event) => setScoreB(event.target.value)}
           inputMode="numeric"
-          className="h-12 rounded-md border border-slate-200 bg-white px-3 text-center text-xl font-black outline-none focus:border-slate-950"
+          className="h-12 rounded-md border border-white/10 bg-slate-950 px-3 text-center text-xl font-black text-white outline-none focus:border-lime-300"
           placeholder="0"
         />
       </div>
 
-      {winner && <div className="mt-2 rounded-md bg-emerald-50 px-3 py-2 text-xs font-black uppercase text-emerald-700">Vencedor: {winner.name}</div>}
-      {error && <div className="mt-2 rounded-md bg-red-50 px-3 py-2 text-xs font-bold text-red-700">{error}</div>}
+      {winner && <div className="mt-2 rounded-md border border-emerald-300/25 bg-emerald-400/10 px-3 py-2 text-xs font-black uppercase text-emerald-200">Vencedor: {winner.name}</div>}
+      {error && <div className="mt-2 rounded-md border border-red-400/30 bg-red-500/10 px-3 py-2 text-xs font-bold text-red-100">{error}</div>}
 
       <div className="mt-3 grid gap-2 sm:grid-cols-3">
         <button type="button" onClick={() => onStart(match.id)} className="h-10 rounded-md bg-amber-500 px-3 text-xs font-black uppercase text-white">
@@ -509,7 +519,7 @@ function KnockoutAdminCard({
         >
           Salvar placar
         </button>
-        <button type="button" onClick={() => onReopen(match.id)} className="h-10 rounded-md border border-slate-300 bg-white px-3 text-xs font-black uppercase text-slate-800">
+        <button type="button" onClick={() => onReopen(match.id)} className="h-10 rounded-md border border-white/10 bg-white/[0.04] px-3 text-xs font-black uppercase text-slate-100">
           Corrigir
         </button>
       </div>

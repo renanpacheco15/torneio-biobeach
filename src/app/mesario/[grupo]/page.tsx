@@ -19,10 +19,10 @@ export default function ScorekeeperPage() {
   if (!group) {
     return (
     <main className="flex min-h-screen items-center justify-center bg-[#020403] px-4 text-white">
-        <div className="max-w-md rounded-lg border border-slate-200 bg-white p-6 text-center shadow-sm">
-          <Brand compact />
+        <div className="max-w-md rounded-xl border border-white/10 bg-white/[0.055] p-6 text-center shadow-[0_0_34px_rgba(132,204,22,0.08)] backdrop-blur">
+          <Brand dark compact />
           <h1 className="mt-6 text-2xl font-black uppercase">Quadra não encontrada</h1>
-          <Link href="/" className="mt-4 inline-flex h-11 items-center justify-center rounded-md bg-slate-950 px-4 text-sm font-black uppercase text-white">
+          <Link href="/" className="mt-4 inline-flex h-11 items-center justify-center rounded-md bg-lime-300 px-4 text-sm font-black uppercase text-slate-950">
             Voltar
           </Link>
         </div>
@@ -70,7 +70,7 @@ export default function ScorekeeperPage() {
           }
         />
 
-        <div className={`flex items-center gap-2 rounded-lg border p-3 text-sm font-black uppercase ${state.settings.locked ? "border-amber-200 bg-amber-50 text-amber-800" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}>
+        <div className={`flex items-center gap-2 rounded-lg border p-3 text-sm font-black uppercase ${state.settings.locked ? "border-amber-300/30 bg-amber-300/10 text-amber-100" : "border-emerald-300/30 bg-emerald-400/10 text-emerald-100"}`}>
           {state.settings.locked ? <Lock className="h-4 w-4" aria-hidden="true" /> : <Unlock className="h-4 w-4" aria-hidden="true" />}
           {state.settings.locked ? "Lançamentos travados pelo administrador" : "Lançamentos liberados"}
         </div>

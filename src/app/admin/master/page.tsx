@@ -311,7 +311,9 @@ function MasterAdminContent() {
           </section>
         )}
 
-        {activePanel === "regulamento" && <RegulationEditor state={state} actions={actions} />}
+        {activePanel === "regulamento" && (
+          <RegulationEditor key={`${state.regulation.title}:${state.regulation.subtitle}:${state.regulation.body}`} state={state} actions={actions} />
+        )}
 
         {activePanel === "log" && <LogPanel state={state} />}
       </div>
@@ -480,9 +482,6 @@ function RegulationEditor({
             onClick={() => {
               if (!window.confirm("Restaurar o regulamento padrão?")) return;
               actions.resetRegulation();
-              setTitle(state.regulation.title);
-              setSubtitle(state.regulation.subtitle);
-              setBody(state.regulation.body);
             }}
             className="h-11 rounded-md border border-white/10 bg-white/[0.04] px-4 text-xs font-black uppercase text-slate-100"
           >
